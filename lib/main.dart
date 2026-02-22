@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:psychora/features/complete_signup_doctor/presentation/widget/complete_form.dart';
+import 'package:psychora/features/signup_page/presentation/page/signup_page.dart';
 
 void main() {
   runApp(const Myapp()) ;
@@ -12,7 +13,7 @@ class Myapp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home:CompleteProfiledoctor(),
+      home:SignupPage(),
     );
   }
 }
