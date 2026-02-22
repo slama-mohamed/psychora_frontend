@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import 'package:psychora/features/login_page/presentation/page/login_page.dart';
+import 'package:psychora/features/signup_page/presentation/function/navigation_functions.dart';
 
 class AlreadyHaveAccountRow extends StatelessWidget {
   const AlreadyHaveAccountRow({super.key});
@@ -26,10 +27,7 @@ class AlreadyHaveAccountRow extends StatelessWidget {
               ),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const LoginPage()),
-                  );
+                  AppNavigationFunctions.navigateToLogin(context);
                 },
             ),
           ],

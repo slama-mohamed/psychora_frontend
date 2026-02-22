@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:psychora/features/complete_signup_doctor/presentation/page/doctor_profile_page.dart';
-import 'package:psychora/features/complete_signup_student/presentation/widget/complete_form.dart';
+import 'package:psychora/features/signup_page/presentation/function/navigation_functions.dart';
 
 class SignupController {
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
@@ -20,21 +19,11 @@ class SignupController {
 
     // Navigate to doctor profile (student flow removed)
     if (selectedRole == 'Doctor') {
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (context) => const DoctorProfilePage(),
-        ),
-      );
+      AppNavigationFunctions.navigateToDoctorProfile(context);
     }
     if (selectedRole == "Student") {
-  Navigator.push(
-    context,
-    MaterialPageRoute(
-      builder: (context) => const CompleteProfileStudent(),
-    ),
-  );
-}
+      AppNavigationFunctions.navigateToCompleteProfileStudent(context);
+    }
   }
 
   void dispose() {
@@ -42,5 +31,4 @@ class SignupController {
     emailController.dispose();
     passwordController.dispose();
   }
-
 }

@@ -242,6 +242,7 @@ class _CompleteProfiledoctorState extends State<CompleteProfiledoctor> {
                           ),
                           Text(
                             'years',
+                            // ignore: deprecated_member_use
                             style: TextStyle(color: Colors.grey.withOpacity(0.7)),
                           ),
                         ],
@@ -271,6 +272,7 @@ class _CompleteProfiledoctorState extends State<CompleteProfiledoctor> {
                 },
                 child: Text(
                   'Back to Sign Up',
+                  // ignore: deprecated_member_use
                   style: TextStyle(color: Colors.grey.withOpacity(0.8)),
                 ),
               ),

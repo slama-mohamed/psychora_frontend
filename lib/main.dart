@@ -1,9 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:psychora/features/complete_signup_doctor/presentation/widget/complete_form.dart';
-import 'package:psychora/features/signup_page/presentation/page/signup_page.dart';
+import 'package:psychora/core/navigation/app_router.dart';
 
 void main() {
-  runApp(const Myapp()) ;
+  runApp(const Myapp());
 }
 
 class Myapp extends StatelessWidget {
@@ -11,9 +10,9 @@ class Myapp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return MaterialApp.router(
       debugShowCheckedModeBanner: false,
-      home:SignupPage(),
+      routerConfig: AppRouter.router,
     );
   }
 }

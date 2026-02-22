@@ -19,13 +19,12 @@ class LoginButton extends StatelessWidget {
         onPressed: isLoading ? null : onPressed,
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF3D9970),
+          // ignore: deprecated_member_use
           disabledBackgroundColor: const Color(0xFF3D9970).withOpacity(0.6),
           foregroundColor: Colors.white,
           elevation: 0,
           shadowColor: Colors.transparent,
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(8),
-          ),
+          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
           padding: const EdgeInsets.symmetric(vertical: 14),
         ),
         child: isLoading
@@ -49,10 +48,7 @@ class LoginButton extends StatelessWidget {
                     ),
                   ),
                   SizedBox(width: 8),
-                  Icon(
-                    Icons.arrow_forward,
-                    size: 18,
-                  ),
+                  Icon(Icons.arrow_forward, size: 18),
                 ],
               ),
       ),

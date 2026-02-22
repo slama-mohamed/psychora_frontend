@@ -5,7 +5,7 @@ import '../function/signup_controller.dart';
 import 'fullname_field.dart';
 import 'email_field.dart';
 import 'password_field.dart';
-import '../widget/Role_Selector.dart';
+import 'role_selector.dart';
 import '../widget/already_have_account_row.dart';
 import '../../../login_page/presentation/widget/welcome_text.dart';
 
@@ -67,15 +67,20 @@ class _SignupFormState extends State<SignupForm> {
                     );
                   },
                 ),
+                
                 const SizedBox(height: 8),
+                
                 const WelcomeText(
                   title: 'Create Account',
                   subtitle: 'Join the Psychora community',
                 ),
+              
               ],
             ),
           ),
+         
           const SizedBox(height: 30),
+         
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 24),
             child: Form(
@@ -99,6 +104,7 @@ class _SignupFormState extends State<SignupForm> {
                       letterSpacing: 0.5,
                     ),
                   ),
+                  
                   const SizedBox(height: 8),
                   FullNameField(controller: widget.controller.fullNameController),
                   const SizedBox(height: 20),
@@ -135,6 +141,7 @@ class _SignupFormState extends State<SignupForm> {
             child: Column(
               children: [
                 const SizedBox(height: 20),
+                
                 SizedBox(
                   width: double.infinity,
                   height: 54,
@@ -172,8 +179,11 @@ class _SignupFormState extends State<SignupForm> {
                     ),
                   ),
                 ),
+                
                 const SizedBox(height: 16),
+                
                 const AlreadyHaveAccountRow(),
+                
                 const SizedBox(height: 24),
               ],
             ),
