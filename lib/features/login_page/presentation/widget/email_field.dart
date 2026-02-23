@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:psychora/core/validators/email_validator.dart';
+import 'package:psychora/core/validators/validation_patterns.dart';
 
-class EmailField extends StatelessWidget {
+class EmailField extends StatefulWidget {
   final TextEditingController controller;
   final FocusNode? focusNode;
 
@@ -11,24 +13,83 @@ class EmailField extends StatelessWidget {
   });
 
   @override
+  State<EmailField> createState() => _EmailFieldState();
+}
+
+class _EmailFieldState extends State<EmailField> {
+  late FocusNode _focusNode;
+  bool _hasInteracted = false;
+
+  @override
+  void initState() {
+    super.initState();
+    _focusNode = widget.focusNode ?? FocusNode();
+    _focusNode.addListener(_handleFocusChange);
+    widget.controller.addListener(_onEmailChanged);
+  }
+
+  @override
+  void dispose() {
+    _focusNode.removeListener(_handleFocusChange);
+    widget.controller.removeListener(_onEmailChanged);
+    if (widget.focusNode == null) {
+      _focusNode.dispose();
+    }
+    super.dispose();
+  }
+
+  void _handleFocusChange() {
+    if (!_focusNode.hasFocus && !_hasInteracted) {
+      setState(() {
+        _hasInteracted = true;
+      });
+    }
+  }
+
+  void _onEmailChanged() {
+    setState(() {});
+  }
+
+  InputBorder _getInputBorder() {
+    if (!_hasInteracted) {
+      return OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+      );
+    }
+
+    if (widget.controller.text.isEmpty) {
+      return OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Colors.red, width: 1),
+      );
+    }
+
+    if (ValidationPatterns.isValidEmail(widget.controller.text)) {
+      return OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: const BorderSide(color: Color(0xFF3D9970), width: 1),
+      );
+    }
+
+    return OutlineInputBorder(
+      borderRadius: BorderRadius.circular(8),
+      borderSide: const BorderSide(color: Colors.red, width: 1),
+    );
+  }
+
+  @override
   Widget build(BuildContext context) {
     return TextFormField(
-      controller: controller,
-      focusNode: focusNode,
+      controller: widget.controller,
+      focusNode: _focusNode,
       keyboardType: TextInputType.emailAddress,
+      autovalidateMode: _hasInteracted ? AutovalidateMode.always : AutovalidateMode.disabled,
       style: const TextStyle(
         fontSize: 15,
         color: Color(0xFF1F2937),
       ),
-      validator: (value) {
-        if (value == null || value.isEmpty) {
-          return 'Please enter your email';
-        }
-        if (!RegExp(r'^[\w-\.]+@([\w-]+\.)+[\w-]{2,4}$').hasMatch(value)) {
-          return 'Please enter a valid email';
-        }
-        return null;
-      },
+      validator: EmailValidator.validate,
       decoration: InputDecoration(
         hintText: 'Enter your email',
         hintStyle: const TextStyle(
@@ -42,20 +103,8 @@ class EmailField extends StatelessWidget {
         ),
         filled: true,
         fillColor: Colors.white,
-        enabledBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Color(0xFFE5E7EB),
-            width: 1,
-          ),
-        ),
-        focusedBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Color(0xFF3D9970),
-            width: 1,
-          ),
-        ),
+        enabledBorder: _getInputBorder(),
+        focusedBorder: _getInputBorder(),
         errorBorder: OutlineInputBorder(
           borderRadius: BorderRadius.circular(8),
           borderSide: const BorderSide(

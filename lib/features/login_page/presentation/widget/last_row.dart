@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:psychora/features/signup_page/presentation/page/signup_page.dart';
 
 class LastRow extends StatelessWidget {
   const LastRow({super.key});
@@ -21,7 +22,14 @@ class LastRow extends StatelessWidget {
         SizedBox(width: 9),
 
         GestureDetector(
-          onTap: () => {},
+          onTap: () {
+  Navigator.push(
+    context,
+    MaterialPageRoute(
+      builder: (context) => const SignupPage(),
+    ),
+  );
+},
           child: Text("SignUp", style: TextStyle(color: Colors.green)),
         ),
       ],

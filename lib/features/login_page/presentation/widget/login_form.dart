@@ -4,7 +4,6 @@ import 'package:psychora/features/login_page/presentation/widget/email_field.dar
 import 'package:psychora/features/login_page/presentation/widget/last_row.dart';
 import 'package:psychora/features/login_page/presentation/widget/login_button.dart';
 import 'package:psychora/features/login_page/presentation/widget/password_field.dart';
-import 'package:psychora/features/login_page/presentation/widget/psychora_text.dart';
 import 'package:psychora/features/login_page/presentation/widget/row_password.dart';
 import 'package:psychora/features/login_page/presentation/widget/textemail.dart';
 import 'package:psychora/features/login_page/presentation/widget/welcome_text.dart';
@@ -41,8 +40,8 @@ class _LoginFormState extends State<LoginForm> {
                 children: [
                   Image.asset(
                     AssetsConstant.appLogo,
-                    width: 200,
-                    height: 200,
+                    width: 160,
+                    height: 160,
                     fit: BoxFit.contain,
                     filterQuality: FilterQuality.high,
                     errorBuilder: (context, error, stackTrace) {
@@ -54,9 +53,11 @@ class _LoginFormState extends State<LoginForm> {
                     },
                   ),
 
-                  PsychoraText(),
-                  SizedBox(height: 8),
-                  WelcomeText(),
+                  //PsychoraText(),
+                  SizedBox(height: 40),
+                  const WelcomeText(
+                    subtitle: 'Welcome back to your workspace',
+                  ),
                 ],
               ),
             ),
