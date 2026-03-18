@@ -31,56 +31,59 @@ class _LoginFormState extends State<LoginForm> {
   Widget build(BuildContext context) {
     return SafeArea(
       child: SingleChildScrollView(
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            SizedBox(height: 50),
-            Center(
-              child: Column(
-                children: [
-                  Image.asset(
-                    AssetsConstant.appLogo,
-                    width: 160,
-                    height: 160,
-                    fit: BoxFit.contain,
-                    filterQuality: FilterQuality.high,
-                    errorBuilder: (context, error, stackTrace) {
-                      return const Icon(
-                        Icons.psychology_outlined,
-                        color: Color(0xFF3D9970),
-                        size: 40,
-                      );
-                    },
-                  ),
+        child: Form(
+          key: _formkey,
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              SizedBox(height: 50),
+              Center(
+                child: Column(
+                  children: [
+                    Image.asset(
+                      AssetsConstant.appLogo,
+                      width: 160,
+                      height: 160,
+                      fit: BoxFit.contain,
+                      filterQuality: FilterQuality.high,
+                      errorBuilder: (context, error, stackTrace) {
+                        return const Icon(
+                          Icons.psychology_outlined,
+                          color: Color(0xFF3D9970),
+                          size: 40,
+                        );
+                      },
+                    ),
 
-                  //PsychoraText(),
-                  SizedBox(height: 40),
-                  const WelcomeText(subtitle: 'Welcome back to your workspace'),
-                ],
+                    //PsychoraText(),
+                    SizedBox(height: 40),
+                    const WelcomeText(subtitle: 'Welcome back to your workspace'),
+                  ],
+                ),
               ),
-            ),
-            SizedBox(height: 30),
+              SizedBox(height: 30),
 
-            Textemail(),
+              Textemail(),
 
-            SizedBox(height: 8),
+              SizedBox(height: 8),
 
-            EmailField(controller: _emailController),
+              EmailField(controller: _emailController),
 
-            SizedBox(height: 30),
+              SizedBox(height: 30),
 
-            RowPassword(),
+              RowPassword(),
 
-            SizedBox(height: 8),
+              SizedBox(height: 8),
 
-            PasswordField(controller: _passwordController),
-            SizedBox(height: 30),
+              PasswordField(controller: _passwordController),
+              SizedBox(height: 30),
 
-            LoginButton(onPressed: () {}),
-            SizedBox(height: 20),
-            LastRow(),
-          ],
+              LoginButton(onPressed: () {}),
+              SizedBox(height: 20),
+              LastRow(),
+            ],
+          ),
         ),
       ),
     );

@@ -2,19 +2,25 @@ import 'package:go_router/go_router.dart';
 import 'package:psychora/core/constants/route_name.dart';
 import 'package:psychora/features/complete_signup_doctor/presentation/page/doctor_profile_page.dart';
 import 'package:psychora/features/complete_signup_student/presentation/widget/complete_form.dart';
+import 'package:psychora/features/home/presentation/page/home_page.dart';
 import 'package:psychora/features/login_page/presentation/page/login_page.dart';
 import 'package:psychora/features/signup_page/presentation/page/signup_page.dart';
 
 class AppRouter {
+  static const String home = '/home';
   static const String login = '/login';
   static const String signup = '/signup';
   static const String doctorprofilepage = '/doctorprofilepage';
   static const String completeProfileStudent = '/completeprofilestudent';
 
-
   static final GoRouter router = GoRouter(
-    initialLocation: signup,
+    initialLocation: home,
     routes: [
+      GoRoute(
+        path: home,
+        name: RouteName.home,
+        builder: (context, state) => const HomePage(),
+      ),
       GoRoute(
         path: login,
         name: RouteName.loginName,
@@ -25,7 +31,7 @@ class AppRouter {
         name: RouteName.signupName,
         builder: (context, state) => const SignupPage(),
       ),
-          GoRoute(
+      GoRoute(
         path: doctorprofilepage,
         name: RouteName.doctorprofilepage,
         builder: (context, state) => const DoctorProfilePage(),
@@ -35,7 +41,6 @@ class AppRouter {
         name: RouteName.completeProfileStudent,
         builder: (context, state) => const CompleteProfileStudent(),
       ),
-      
     ],
   );
 }
