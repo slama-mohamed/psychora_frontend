@@ -5,5 +5,6 @@ class RouteName {
   static const String doctorprofilepage = 'doctorprofilepage';
   static const String completeProfileStudent = 'completeprofilestudent';
   static const String chatbotinterface = 'chatbotinterface';
+  static const String forgotPassword = 'forgotpassword';
 
 }
