@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:psychora/features/home/presentation/widget/home_form.dart';
+import 'package:psychora/features/home/presentation/widget/quickactiontile.dart';
 
 class QuickActionsSection extends StatelessWidget {
   const QuickActionsSection({super.key});
@@ -36,7 +37,7 @@ class QuickActionsSection extends StatelessWidget {
             itemCount: HomeFormData.quickActions.length,
             itemBuilder: (context, index) {
               final item = HomeFormData.quickActions[index];
-              return _QuickActionTile(item: item);
+              return QuickActionTile(item: item);
             },
           ),
         ],
@@ -45,37 +46,3 @@ class QuickActionsSection extends StatelessWidget {
   }
 }
 
-class _QuickActionTile extends StatelessWidget {
-  const _QuickActionTile({required this.item});
-
-  final QuickActionItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: item.backgroundColor,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            item.icon,
-            size: 26,
-            color: item.foregroundColor,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            item.title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: item.foregroundColor,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
-}

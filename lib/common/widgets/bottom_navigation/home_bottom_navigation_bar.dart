@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:psychora/common/widgets/bottom_navigation/bottombutton.dart';
+
 
 class HomeBottomNavigationBar extends StatelessWidget {
   const HomeBottomNavigationBar({super.key});
@@ -16,28 +18,28 @@ class HomeBottomNavigationBar extends StatelessWidget {
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceAround,
         children: [
-          _BottomButton(
+          BottomButton(
             icon: Icons.home_outlined,
             activeIcon: Icons.home,
             label: 'Home',
             isActive: true,
             onTap: () {},
           ),
-          _BottomButton(
+          BottomButton(
             icon: Icons.people_outline,
             activeIcon: Icons.people,
             label: 'Patients',
             isActive: false,
             onTap: () {},
           ),
-          _BottomButton(
+          BottomButton(
             icon: Icons.menu_book_outlined,
             activeIcon: Icons.menu_book,
             label: 'Resources',
             isActive: false,
             onTap: () {},
           ),
-          _BottomButton(
+          BottomButton(
             icon: Icons.person_outline,
             activeIcon: Icons.person,
             label: 'Profile',
@@ -50,50 +52,3 @@ class HomeBottomNavigationBar extends StatelessWidget {
   }
 }
 
-class _BottomButton extends StatelessWidget {
-  final IconData icon;
-  final IconData activeIcon;
-  final String label;
-  final bool isActive;
-  final VoidCallback onTap;
-
-  const _BottomButton({
-    required this.icon,
-    required this.activeIcon,
-    required this.label,
-    required this.isActive,
-    required this.onTap,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = isActive ? const Color(0xFF3D9970) : const Color(0xFF9CA3AF);
-
-    return GestureDetector(
-      onTap: onTap,
-      behavior: HitTestBehavior.opaque,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Icon(
-              isActive ? activeIcon : icon,
-              color: color,
-              size: 24,
-            ),
-            const SizedBox(height: 4),
-            Text(
-              label,
-              style: TextStyle(
-                fontSize: 12,
-                color: color,
-                fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
-              ),
-            ),
-          ],
-        ),
-      ),
-    );
-  }
-}
