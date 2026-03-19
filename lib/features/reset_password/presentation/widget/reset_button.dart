@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:psychora/features/forgot_password/presentation/function/handle_resetpassword_navigation.dart';
+import 'package:psychora/features/reset_password/presentation/function/handle_login_navigation.dart';
 
 class ResetButton extends StatelessWidget {
   final GlobalKey<FormState>? formkey;
@@ -11,24 +11,23 @@ class ResetButton extends StatelessWidget {
       width: double.infinity,
       child: ElevatedButton(
         onPressed: () {
-          // action reset password
           if (formkey != null && formkey!.currentState!.validate()) {
             // Perform reset password action
             ScaffoldMessenger.of(context).showSnackBar(
               const SnackBar(
-                content: Text('A password reset link has been sent to your email.'),
+                content: Text('Password reset successfully!'),
                 backgroundColor: Color(0xFF3D9970),
               ),
             );
-            handleresetpasswordnavigation(context);
+            handleLoginNavigation(context);
           }
         },
         style: ElevatedButton.styleFrom(
-          padding: EdgeInsets.symmetric(vertical: 15),
+          padding: const EdgeInsets.symmetric(vertical: 15),
           backgroundColor: const Color(0xFF3D9970),
         ),
-        child: Text(
-          'Send Reset Link',
+        child: const Text(
+          'Reset Password',
           style: TextStyle(
             color: Colors.white,
             fontSize: 16,
