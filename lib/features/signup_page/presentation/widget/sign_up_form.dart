@@ -60,6 +60,7 @@ class _SignupFormState extends State<SignupForm> {
                       shape: BoxShape.circle,
                       boxShadow: [
                         BoxShadow(
+                          // ignore: deprecated_member_use
                           color: const Color(0xFF3D9970).withOpacity(0.15),
                           blurRadius: 24,
                           offset: const Offset(0, 4),
@@ -104,6 +105,7 @@ class _SignupFormState extends State<SignupForm> {
                 borderRadius: BorderRadius.circular(16),
                 boxShadow: [
                   BoxShadow(
+                    // ignore: deprecated_member_use
                     color: Colors.black.withOpacity(0.05),
                     blurRadius: 16,
                     offset: const Offset(0, 2),
@@ -174,6 +176,7 @@ class _SignupFormState extends State<SignupForm> {
                         style: ElevatedButton.styleFrom(
                           backgroundColor: _isFormValid
                               ? const Color(0xFF3D9970)
+                              // ignore: deprecated_member_use
                               : const Color(0xFF3D9970).withOpacity(0.5),
                           foregroundColor: Colors.white,
                           elevation: 0,

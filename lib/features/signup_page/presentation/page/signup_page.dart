@@ -69,9 +69,11 @@ class _SignupPageState extends State<SignupPage> {
               height: 350,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
+                // ignore: deprecated_member_use
                 color: const Color(0xFF3D9970).withOpacity(0.06),
                 boxShadow: [
                   BoxShadow(
+                    // ignore: deprecated_member_use
                     color: const Color(0xFF3D9970).withOpacity(0.04),
                     blurRadius: 100,
                     spreadRadius: 30,
