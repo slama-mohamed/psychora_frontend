@@ -8,5 +8,6 @@ class RouteName {
   static const String forgotPassword = 'forgotpassword';
   static const String resetpassword = 'resetpassword';
   static const String patientdashboardpage = 'patientdashboardpage';
+  static const String profilepage = 'profilepage';
 
 }

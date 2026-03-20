@@ -12,22 +12,12 @@ class HeaderText extends StatelessWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            'Mes Patients',
-            style: TextStyle(
-              fontSize: 28,
-              fontWeight: FontWeight.w800,
-              color: Color(0xFF1F2937),
-              letterSpacing: -0.5,
-            ),
-          ),
-          const SizedBox(height: 8),
           Text(
             '${filteredPatients.length} patient${filteredPatients.length > 1 ? 's' : ''} disponible${filteredPatients.length > 1 ? 's' : ''}',
             style: TextStyle(
-              fontSize: 14,
-              color: Colors.grey[600],
-              fontWeight: FontWeight.w500,
+              fontSize: 17,
+              color: Color(0xFF1F2937),
+              fontWeight: FontWeight.w600,
             ),
           ),
         ],

@@ -7,6 +7,7 @@ import 'package:psychora/features/forgot_password/presentation/page/forgot_passw
 import 'package:psychora/features/home/presentation/page/home_page.dart';
 import 'package:psychora/features/login_page/presentation/page/login_page.dart';
 import 'package:psychora/features/patient_dashboard/presentation/page/patient_dashboard_page.dart';
+import 'package:psychora/features/profile_page/presentation/page/profile_page.dart';
 import 'package:psychora/features/reset_password/presentation/page/reset_password.dart';
 import 'package:psychora/features/signup_page/presentation/page/signup_page.dart';
 
@@ -20,9 +21,10 @@ class AppRouter {
   static const String forgotPassword = '/forgotpassword';
   static const String resetpassword = '/resetpassword';
   static const String patientdashboardpage = '/patientdashboardpage';
+  static const String profilepage = '/profilepage';
 
   static final GoRouter router = GoRouter(
-    initialLocation: patientdashboardpage,
+    initialLocation: profilepage,
     routes: [
       GoRoute(
         path: home,
@@ -69,7 +71,11 @@ class AppRouter {
         name: RouteName.patientdashboardpage,
         builder: (context, state) => const PatientDashboardPage(),
       ),
-
+      GoRoute(
+        path: profilepage,
+        name: RouteName.profilepage,
+        builder: (context, state) => const ProfilePage(),
+      ),
     ],
   );
 }

@@ -1,4 +1,4 @@
-import 'package:flutter/widgets.dart';
+import 'package:flutter/material.dart';
 
 class BottomButton extends StatelessWidget {
   final IconData icon;
@@ -7,7 +7,8 @@ class BottomButton extends StatelessWidget {
   final bool isActive;
   final VoidCallback onTap;
 
-  const BottomButton({super.key, 
+  const BottomButton({
+    super.key,
     required this.icon,
     required this.activeIcon,
     required this.label,
@@ -47,3 +48,4 @@ class BottomButton extends StatelessWidget {
     );
   }
 }
+
