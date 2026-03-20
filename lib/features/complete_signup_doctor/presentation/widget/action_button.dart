@@ -19,15 +19,15 @@ class ActionButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return SizedBox(
       width: double.infinity,
-      height: 48,
+      height: 52,
       child: ElevatedButton(
         onPressed: isEnabled && !isLoading ? onPressed : null,
         style: ElevatedButton.styleFrom(
-          backgroundColor: isEnabled ? const Color(0xFF3D9970) : Colors.grey[300],
+          backgroundColor: isEnabled ? const Color(0xFF3D9970) : const Color(0xFF3D9970).withOpacity(0.5),
           shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
+            borderRadius: BorderRadius.circular(10),
           ),
-          disabledBackgroundColor: Colors.grey[300],
+          disabledBackgroundColor: const Color(0xFF3D9970).withOpacity(0.5),
           elevation: 0,
         ),
         child: isLoading
@@ -35,7 +35,7 @@ class ActionButton extends StatelessWidget {
                 height: 24,
                 width: 24,
                 child: CircularProgressIndicator(
-                  strokeWidth: 2,
+                  strokeWidth: 2.5,
                   valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
                 ),
               )
@@ -43,8 +43,9 @@ class ActionButton extends StatelessWidget {
                 label,
                 style: TextStyle(
                   fontSize: 16,
-                  fontWeight: FontWeight.bold,
-                  color: isEnabled ? Colors.white : Colors.grey,
+                  fontWeight: FontWeight.w700,
+                  color: isEnabled ? Colors.white : Colors.white70,
+                  letterSpacing: 0.5,
                 ),
               ),
       ),
