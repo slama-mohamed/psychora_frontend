@@ -1,36 +1,50 @@
 import 'package:flutter/material.dart';
-import 'package:psychora/features/home/presentation/widget/home_form.dart';
+import 'package:psychora/features/home/presentation/widget/quick_action_item.dart';
 
 class QuickActionTile extends StatelessWidget {
-  const QuickActionTile({super.key, required this.item});
+  const QuickActionTile({super.key, required this.item, this.onTap});
 
   final QuickActionItem item;
+  final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: item.backgroundColor,
+    return Material(
+      color: Colors.transparent,
+      child: InkWell(
         borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            item.icon,
-            size: 26,
-            color: item.foregroundColor,
+        onTap: onTap ?? item.onTap,
+        child: Container(
+          decoration: BoxDecoration(
+            color: Colors.white,
+            borderRadius: BorderRadius.circular(14),
+            border: Border.all(color: const Color(0xFFE5E7EB), width: 1),
           ),
-          const SizedBox(height: 8),
-          Text(
-            item.title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: item.foregroundColor,
-            ),
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Container(
+                decoration: BoxDecoration(
+                  // ignore: deprecated_member_use
+                  color: item.backgroundColor.withOpacity(0.15),
+                  shape: BoxShape.circle,
+                ),
+                padding: const EdgeInsets.all(10),
+                child: Icon(item.icon, size: 22, color: item.backgroundColor),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                item.title,
+                textAlign: TextAlign.center,
+                style: const TextStyle(
+                  fontSize: 13,
+                  fontWeight: FontWeight.w600,
+                  color: Color(0xFF111827),
+                ),
+              ),
+            ],
           ),
-        ],
+        ),
       ),
     );
   }

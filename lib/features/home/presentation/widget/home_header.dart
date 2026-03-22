@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:psychora/features/home/presentation/widget/form_date.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -6,7 +7,7 @@ class HomeHeader extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final now = DateTime.now();
-    final dateLabel = _formatDate(now);
+    final dateLabel = formatDate(now);
 
     return Card(
       margin: EdgeInsets.zero,
@@ -15,13 +16,12 @@ class HomeHeader extends StatelessWidget {
       child: Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(16),
-          color: const Color(0xFFDFF3EC), // light mint green
+          color: const Color(0xFFDFF3EC),
         ),
         padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 20),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Sparkle icon + title
             Row(
               crossAxisAlignment: CrossAxisAlignment.center,
               children: const [
@@ -44,10 +44,7 @@ class HomeHeader extends StatelessWidget {
             const SizedBox(height: 6),
             const Text(
               'AI-powered diagnostic assistant at your service',
-              style: TextStyle(
-                fontSize: 13,
-                color: Color(0xFF6B7280),
-              ),
+              style: TextStyle(fontSize: 13, color: Color(0xFF6B7280)),
             ),
             const SizedBox(height: 14),
             Row(
@@ -67,24 +64,12 @@ class HomeHeader extends StatelessWidget {
                 ),
               ],
             ),
+            
           ],
         ),
       ),
     );
   }
 
-  String _formatDate(DateTime date) {
-    const weekDays = [
-      'Monday', 'Tuesday', 'Wednesday', 'Thursday',
-      'Friday', 'Saturday', 'Sunday',
-    ];
-    const months = [
-      'January', 'February', 'March', 'April',
-      'May', 'June', 'July', 'August',
-      'September', 'October', 'November', 'December',
-    ];
-    final weekday = weekDays[date.weekday - 1];
-    final month = months[date.month - 1];
-    return '$weekday, $month ${date.day}, ${date.year}';
-  }
+  
 }
