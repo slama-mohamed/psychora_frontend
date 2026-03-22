@@ -24,7 +24,7 @@ class AppRouter {
   static const String profilepage = '/profilepage';
 
   static final GoRouter router = GoRouter(
-    initialLocation: home,
+    initialLocation: login ,
     routes: [
       GoRoute(
         path: home,
