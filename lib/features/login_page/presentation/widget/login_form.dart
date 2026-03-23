@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:psychora/core/constants/assets_constant.dart';
+import 'package:psychora/features/login_page/presentation/function/handle_home_navigation.dart';
 import 'package:psychora/features/login_page/presentation/widget/email_field.dart';
 import 'package:psychora/features/login_page/presentation/widget/last_row.dart';
 import 'package:psychora/features/login_page/presentation/widget/login_button.dart';
@@ -105,7 +106,11 @@ class _LoginFormState extends State<LoginForm> {
                     SizedBox(height: 10),
                     PasswordField(controller: _passwordController),
                     SizedBox(height: 28),
-                    LoginButton(onPressed: () {}),
+                    LoginButton(onPressed: () => handleHomeNavigation(
+                      context: context,
+                      email: _emailController.text,
+                      password: _passwordController.text,
+                    )),
                   ],
                 ),
               ),

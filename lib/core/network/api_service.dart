@@ -49,6 +49,36 @@ class ApiService {
     _onUnauthorized = callback;
   }
 
+  Future<Response<dynamic>> testLogin({
+    required String email,
+    required String password,
+    String path = '/auth/login',
+  }) async {
+    final response = await _dio.post<dynamic>(
+      path,
+      data: <String, dynamic>{
+        'email': email,
+        'password': password,
+      },
+    );
+
+    final dynamic responseData = response.data;
+    if (responseData is Map<String, dynamic>) {
+      final String? token = (responseData['accessToken'] as String?) ??
+          (responseData['token'] as String?);
+
+      if (token != null && token.isNotEmpty) {
+        setAuthToken(token);
+      }
+    }
+
+    return response;
+  }
+
+  
+  
+  
+  
   void _setupInterceptors() {
     _dio.interceptors
       ..clear()

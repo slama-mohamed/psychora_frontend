@@ -1,9 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:psychora/core/constants/route_name.dart';
 import 'package:psychora/features/complete_signup_doctor/presentation/widget/action_button.dart';
 import 'package:psychora/features/complete_signup_doctor/presentation/widget/professional_input_field.dart';
 import 'package:psychora/features/complete_signup_doctor/presentation/widget/profile_header.dart';
 import 'package:psychora/features/complete_signup_doctor/presentation/widget/progress_bar.dart';
-import 'package:psychora/features/signup_page/presentation/page/signup_page.dart';
 import 'package:psychora/core/validators/eight_digit_validator.dart';
 import 'package:psychora/core/validators/validation_patterns.dart';
 
@@ -200,7 +201,7 @@ class _CompleteProfiledoctorState extends State<CompleteProfiledoctor> {
                       ),
                       ProfessionalInputField(
                         label: "PHONE NUMBER",
-                        hint: "+216 00 000 000",
+                        hint: "00 000 000",
                         icon: Icons.phone_outlined,
                         controller: _phoneController,
                         hintStyle: TextStyle(color: Colors.grey.withOpacity(0.7)),
@@ -276,10 +277,7 @@ class _CompleteProfiledoctorState extends State<CompleteProfiledoctor> {
 
               TextButton(
                 onPressed: () {
-                  Navigator.pushReplacement(
-                    context,
-                    MaterialPageRoute(builder: (_) => const SignupPage()),
-                  );
+                  context.goNamed(RouteName.signupName);
                 },
                 child: Text(
                   'Back to Sign Up',
