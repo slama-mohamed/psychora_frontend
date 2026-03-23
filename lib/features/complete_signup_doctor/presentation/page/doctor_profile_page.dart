@@ -2,7 +2,12 @@ import 'package:flutter/material.dart';
 import 'package:psychora/features/complete_signup_doctor/presentation/widget/complete_form.dart';
 
 class DoctorProfilePage extends StatelessWidget {
-  const DoctorProfilePage({super.key});
+  const DoctorProfilePage({
+    super.key,
+    this.signupData,
+  });
+
+  final Map<String, dynamic>? signupData;
 
   @override
   Widget build(BuildContext context) {
@@ -70,7 +75,7 @@ class DoctorProfilePage extends StatelessWidget {
           ),
           // Main content
           SafeArea(
-            child: CompleteProfiledoctor(),
+            child: CompleteProfiledoctor(signupData: signupData),
           ),
         ],
       ),

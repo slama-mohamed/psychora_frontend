@@ -49,16 +49,57 @@ class ApiService {
     _onUnauthorized = callback;
   }
 
-  Future<Response<dynamic>> testLogin({
+  Future<Response<dynamic>> loginUser({
     required String email,
     required String password,
-    String path = '/auth/login',
+    String path = '/api/psy/login',
   }) async {
     final response = await _dio.post<dynamic>(
       path,
       data: <String, dynamic>{
         'email': email,
         'password': password,
+      },
+    );
+
+    final dynamic responseData = response.data;
+    if (responseData is Map<String, dynamic>) {
+      final String? token = (responseData['accessToken'] as String?) ??
+          (responseData['token'] as String?);
+
+      if (token != null && token.isNotEmpty) {
+        setAuthToken(token);
+      }
+    }
+
+    return response;
+  }
+
+  Future<Response<dynamic>> signupPsychologist({
+    required String fullName,
+    required String email,
+    required String password,
+    required String specialty,
+    required String idCard,
+    required String hospital,
+    required String location,
+    required String phone,
+    required int yearsOfExperience,
+    String path = '/api/psy/signup',
+  }) async {
+    final response = await _dio.post<dynamic>(
+      path,
+      data: <String, dynamic>{
+        'fullName': fullName,
+        'email': email,
+        'password': password,
+        'role': 'Doctor',
+        'specialty': specialty,
+        'idCard': idCard,
+        'hospital': hospital,
+        'location': location,
+        'phone': phone,
+        'yearsOfExperience': yearsOfExperience,
       },
     );
 

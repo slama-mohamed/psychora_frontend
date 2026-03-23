@@ -14,12 +14,21 @@ class SignupController {
 
     final name = fullNameController.text.trim();
     final email = emailController.text.trim();
+    final password = passwordController.text;
 
     debugPrint('Role: $selectedRole | Name: $name | Email: $email');
 
     // Navigate to doctor profile (student flow removed)
     if (selectedRole == 'Doctor') {
-      AppNavigationFunctions.navigateToDoctorProfile(context);
+      AppNavigationFunctions.navigateToDoctorProfile(
+        context,
+        signupData: <String, dynamic>{
+          'fullName': name,
+          'email': email,
+          'password': password,
+          'role': selectedRole,
+        },
+      );
     }
     if (selectedRole == "Student") {
       AppNavigationFunctions.navigateToCompleteProfileStudent(context);

@@ -8,12 +8,12 @@ Future<void> handleHomeNavigation({
   required BuildContext context,
   required String email,
   required String password,
-  String loginPath = '/auth/login',
+  String loginPath = '/api/psy/login',
 }) async {
   final messenger = ScaffoldMessenger.maybeOf(context);
 
   try {
-    await ApiService().testLogin(
+    await ApiService().loginUser(
       email: email,
       password: password,
       path: loginPath,

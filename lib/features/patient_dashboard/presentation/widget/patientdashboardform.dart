@@ -31,7 +31,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     _allPatients = [
       PatientModel(
         id: 'P001',
-        name: 'Mohamed Ahmed',
+        name: 'Mohamed Slama',
         age: '28 years',
         condition: 'Major Depressive Disorder',
         lastSeen: '1 week ago',
@@ -39,7 +39,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
       ),
       PatientModel(
         id: 'P002',
-        name: 'Sara Hassan',
+        name: 'Nour Mnif',
         age: '22 years',
         condition: 'Generalized Anxiety Disorder',
         lastSeen: '3 days ago',
@@ -47,7 +47,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
       ),
       PatientModel(
         id: 'P003',
-        name: 'Karim Samir',
+        name: 'Ilef Boualleg',
         age: '26 years',
         condition: 'PTSD',
         lastSeen: '5 days ago',
