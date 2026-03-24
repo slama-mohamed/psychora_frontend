@@ -1,13 +1,14 @@
 import 'package:flutter/material.dart';
 
-class PatientCard extends StatefulWidget {
+class PatientCard extends StatelessWidget {
   final String patientName;
   final String patientId;
   final String age;
   final String condition;
   final String lastSeen;
   final int sessionsCount;
-  final VoidCallback? onNewChat;
+  final VoidCallback? onContinueChat;
+  final VoidCallback? onSummary;
   final VoidCallback? onTap;
 
   const PatientCard({
@@ -18,327 +19,234 @@ class PatientCard extends StatefulWidget {
     required this.condition,
     required this.lastSeen,
     required this.sessionsCount,
-    this.onNewChat,
+    this.onContinueChat,
+    this.onSummary,
     this.onTap,
   });
 
-  @override
-  State<PatientCard> createState() => _PatientCardState();
-}
-
-class _PatientCardState extends State<PatientCard>
-    with SingleTickerProviderStateMixin {
-  late AnimationController _animationController;
-  late Animation<double> _scaleAnimation;
-  bool _isHovered = false;
-
-  @override
-  void initState() {
-    super.initState();
-    _animationController = AnimationController(
-      duration: const Duration(milliseconds: 200),
-      vsync: this,
-    );
-    _scaleAnimation = Tween<double>(begin: 1.0, end: 1.02).animate(
-      CurvedAnimation(parent: _animationController, curve: Curves.easeInOut),
-    );
-  }
-
-  @override
-  void dispose() {
-    _animationController.dispose();
-    super.dispose();
-  }
-
   String _getInitials(String name) {
-    return name
-        .split(' ')
-        .map((e) => e[0])
-        .take(1)
-        .join()
-        .toUpperCase();
+    final parts = name.trim().split(' ');
+    if (parts.isEmpty) return '?';
+    return parts[0][0].toUpperCase();
   }
 
-  Color _getConditionColor(String condition) {
-    if (condition.toLowerCase().contains('depressive')) return Colors.red[100]!;
-    if (condition.toLowerCase().contains('anxiety')) return Colors.orange[100]!;
-    if (condition.toLowerCase().contains('ptsd')) return Colors.purple[100]!;
-    if (condition.toLowerCase().contains('sleep')) return Colors.blue[100]!;
-    return Colors.green[100]!;
-  }
-
-  List<Color> get _avatarColorPalette => [
-    const Color(0xFF3D9970), // Vert
-    const Color(0xFF2E7D32), // Vert foncé
-    const Color(0xFF0277BD), // Bleu
-    const Color(0xFF1565C0), // Bleu foncé
-    const Color(0xFF6A1B9A), // Purple
-    const Color(0xFFC2185B), // Pink
-    const Color(0xFFD32F2F), // Rouge
-    const Color(0xFFF57C00), // Orange
-    const Color(0xFFE65100), // Orange foncé
-    const Color(0xFF455A64), // Gris bleu
+  static const List<Color> _avatarBgColors = [
+    Color(0xFFFFCDD2),
+    Color(0xFFBBDEFB),
+    Color(0xFFFFF9C4),
+    Color(0xFFC8E6C9),
+    Color(0xFFE1BEE7),
+    Color(0xFFFFE0B2),
+    Color(0xFFB2EBF2),
+    Color(0xFFF8BBD0),
   ];
 
-  Color _getAvatarColor(String name) {
-    // Utiliser la première lettre du nom pour déterminer la couleur
-    final firstLetter = name.isEmpty ? 'A' : name[0].toUpperCase();
-    final index = firstLetter.codeUnitAt(0) % _avatarColorPalette.length;
-    return _avatarColorPalette[index];
+  static const List<Color> _avatarTextColors = [
+    Color(0xFFE53935),
+    Color(0xFF1E88E5),
+    Color(0xFFF9A825),
+    Color(0xFF43A047),
+    Color(0xFF8E24AA),
+    Color(0xFFFB8C00),
+    Color(0xFF00ACC1),
+    Color(0xFFD81B60),
+  ];
+
+  Color _getConditionColor(String condition) {
+    final c = condition.toLowerCase();
+    if (c.contains('depressive') || c.contains('dépressif')) return const Color(0xFFFFCDD2);
+    if (c.contains('anxiety') || c.contains('anxiété')) return const Color(0xFFFFE0B2);
+    if (c.contains('ptsd') || c.contains('stress')) return const Color(0xFFE1BEE7);
+    if (c.contains('sleep') || c.contains('sommeil')) return const Color(0xFFBBDEFB);
+    if (c.contains('bipolar') || c.contains('bipolaire')) return const Color(0xFFF8BBD0);
+    return const Color(0xFFC8E6C9);
+  }
+
+  Color _getAvatarBgColor(String name) {
+    final index = name.isEmpty ? 0 : name.codeUnitAt(0) % _avatarBgColors.length;
+    return _avatarBgColors[index];
+  }
+
+  Color _getAvatarTextColor(String name) {
+    final index = name.isEmpty ? 0 : name.codeUnitAt(0) % _avatarTextColors.length;
+    return _avatarTextColors[index];
   }
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      onEnter: (_) {
-        setState(() => _isHovered = true);
-        _animationController.forward();
-      },
-      onExit: (_) {
-        setState(() => _isHovered = false);
-        _animationController.reverse();
-      },
-      child: ScaleTransition(
-        scale: _scaleAnimation,
-        child: GestureDetector(
-          onTap: widget.onTap,
-          child: Container(
-            margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
-            decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  // ignore: deprecated_member_use
-                  color: Colors.black.withOpacity(_isHovered ? 0.15 : 0.08),
-                  blurRadius: _isHovered ? 12 : 8,
-                  offset: const Offset(0, 4),
-                ),
-              ],
-            ),
-            child: Card(
-              elevation: 0,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
-              ),
-              child: Container(
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(12),
-                  gradient: LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Colors.white,
-                      Colors.grey[50]!,
-                    ],
-                  ),
-                ),
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Header avec avatar et actions
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Expanded(
-                          child: Row(
-                            children: [
-                              Container(
-                                decoration: BoxDecoration(
-                                  shape: BoxShape.circle,
-                                  gradient: LinearGradient(
-                                    begin: Alignment.topLeft,
-                                    end: Alignment.bottomRight,
-                                    colors: [
-                                      _getAvatarColor(widget.patientName),
-                                      _getAvatarColor(widget.patientName)
-                                          .withOpacity(0.7),
-                                    ],
-                                  ),
-                                  boxShadow: [
-                                    BoxShadow(
-                                      color: _getAvatarColor(widget.patientName)
-                                          // ignore: deprecated_member_use
-                                          .withOpacity(0.3),
-                                      blurRadius: 8,
-                                      offset: const Offset(0, 4),
-                                    ),
-                                  ],
-                                ),
-                                child: CircleAvatar(
-                                  radius: 30,
-                                  backgroundColor: Colors.transparent,
-                                  child: Text(
-                                    _getInitials(widget.patientName),
-                                    style: const TextStyle(
-                                      color: Colors.white,
-                                      fontSize: 18,
-                                      fontWeight: FontWeight.bold,
-                                    ),
-                                  ),
-                                ),
-                              ),
-                              const SizedBox(width: 14),
-                              Expanded(
-                                child: Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    Text(
-                                      widget.patientName,
-                                      style: const TextStyle(
-                                        fontSize: 16,
-                                        fontWeight: FontWeight.w700,
-                                        color: Color(0xFF1F2937),
-                                      ),
-                                      maxLines: 1,
-                                      overflow: TextOverflow.ellipsis,
-                                    ),
-                                    const SizedBox(height: 6),
-                                    Container(
-                                      padding: const EdgeInsets.symmetric(
-                                        horizontal: 8,
-                                        vertical: 4,
-                                      ),
-                                      decoration: BoxDecoration(
-                                        color: _getConditionColor(
-                                            widget.condition),
-                                        borderRadius: BorderRadius.circular(4),
-                                      ),
-                                      child: Text(
-                                        widget.condition,
-                                        style: TextStyle(
-                                          fontSize: 11,
-                                          fontWeight: FontWeight.w600,
-                                          color: Colors.grey[700],
-                                        ),
-                                        maxLines: 1,
-                                        overflow: TextOverflow.ellipsis,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        IconButton(
-                          icon: const Icon(Icons.more_horiz),
-                          onPressed: () {},
-                          tooltip: 'Plus d\'options',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 16),
-                    // Divider
-                    Container(
-                      height: 1,
-                      color: Colors.grey[200],
-                    ),
-                    const SizedBox(height: 12),
-                    // Infos en grille
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        _buildInfoItem(
-                          icon: Icons.cake_outlined,
-                          label: 'Âge',
-                          value: widget.age,
-                        ),
-                        _buildInfoItem(
-                          icon: Icons.schedule,
-                          label: 'Dernière visite',
-                          value: widget.lastSeen,
-                        ),
-                        _buildInfoItem(
-                          icon: Icons.chat_bubble_outline,
-                          label: 'Sessions',
-                          value: '${widget.sessionsCount}',
-                        ),
-                      ],
-                    ),
-                    const SizedBox(height: 14),
-                    // Bouton New Chat
-                    SizedBox(
-                      width: double.infinity,
-                      height: 44,
-                      child: ElevatedButton(
-                        onPressed: widget.onNewChat,
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: const Color(0xFF3D9970),
-                          foregroundColor: Colors.white,
-                          elevation: _isHovered ? 6 : 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(8),
-                          ),
-                          shadowColor: const Color(0xFF3D9970).withOpacity(0.4),
-                        ),
-                        child: Row(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            Icon(
-                              Icons.add_circle_outline,
-                              size: 20,
-                            ),
-                            const SizedBox(width: 8),
-                            const Text(
-                              'Nouveau Chat',
-                              style: TextStyle(
-                                fontSize: 14,
-                                fontWeight: FontWeight.w600,
-                                letterSpacing: 0.3,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-            ),
-          ),
-        ),
-      ),
-    );
-  }
-
-  Widget _buildInfoItem({
-    required IconData icon,
-    required String label,
-    required String value,
-  }) {
-    return Expanded(
-      child: Column(
-        children: [
-          Icon(
-            icon,
-            size: 20,
-            color: const Color(0xFF3D9970),
-          ),
-          const SizedBox(height: 6),
-          Text(
-            label,
-            style: TextStyle(
-              fontSize: 11,
-              color: Colors.grey[500],
-              fontWeight: FontWeight.w500,
-              letterSpacing: 0.3,
-            ),
-          ),
-          const SizedBox(height: 4),
-          Text(
-            value,
-            style: const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1F2937),
-            ),
-            textAlign: TextAlign.center,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+    return GestureDetector(
+      onTap: onTap,
+      child: Container(
+      margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 6),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(14),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.07),
+            blurRadius: 10,
+            spreadRadius: 0,
+            offset: const Offset(0, 2),
           ),
         ],
       ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // ── Row 1: Avatar + Name + Condition badge ───────────────
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                Container(
+                  width: 44,
+                  height: 44,
+                  decoration: BoxDecoration(
+                    color: _getAvatarBgColor(patientName),
+                    borderRadius: BorderRadius.circular(10),
+                  ),
+                  alignment: Alignment.center,
+                  child: Text(
+                    _getInitials(patientName),
+                    style: TextStyle(
+                      color: _getAvatarTextColor(patientName),
+                      fontSize: 18,
+                      fontWeight: FontWeight.w700,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        patientName,
+                        style: const TextStyle(
+                          fontSize: 15,
+                          fontWeight: FontWeight.w700,
+                          color: Color(0xFF111827),
+                          height: 1.2,
+                        ),
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                      const SizedBox(height: 5),
+                      Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 8,
+                          vertical: 3,
+                        ),
+                        decoration: BoxDecoration(
+                          color: _getConditionColor(condition),
+                          borderRadius: BorderRadius.circular(4),
+                        ),
+                        child: Text(
+                          condition,
+                          style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: Colors.grey[700],
+                          ),
+                          maxLines: 1,
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // ── Row 2: Age · Last visit · Sessions (centered) ────────
+            Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const Icon(Icons.cake_outlined, size: 14, color: Color(0xFF9CA3AF)),
+                const SizedBox(width: 4),
+                Text(
+                  '$age ans',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+                ),
+                const SizedBox(width: 14),
+                const Icon(Icons.access_time_rounded, size: 14, color: Color(0xFF9CA3AF)),
+                const SizedBox(width: 4),
+                Text(
+                  lastSeen,
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+                ),
+                const SizedBox(width: 14),
+                const Icon(Icons.chat_bubble_outline, size: 14, color: Color(0xFF9CA3AF)),
+                const SizedBox(width: 4),
+                Text(
+                  '$sessionsCount sessions',
+                  style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 12),
+
+            // ── Row 3: Continue Chat button + Summary icon ───────────
+            Row(
+              children: [
+                Expanded(
+                  child: SizedBox(
+                    height: 40,
+                    child: ElevatedButton.icon(
+                      onPressed: onContinueChat,
+                      icon: const Icon(
+                        Icons.chat_bubble_outline_rounded,
+                        size: 16,
+                      ),
+                      label: const Text(
+                        'Continue Chat',
+                        style: TextStyle(
+                          fontSize: 13,
+                          fontWeight: FontWeight.w600,
+                          letterSpacing: 0.2,
+                        ),
+                      ),
+                      style: ElevatedButton.styleFrom(
+                        backgroundColor: const Color(0xFF3D9970),
+                        foregroundColor: Colors.white,
+                        elevation: 0,
+                        shadowColor: Colors.transparent,
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFF3F4F6),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: IconButton(
+                    onPressed: onSummary,
+                    icon: const Icon(
+                      Icons.summarize_outlined,
+                      size: 18,
+                      color: Color(0xFF6B7280),
+                    ),
+                    tooltip: 'Summary',
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+              ],
+            ),
+          ],
+        ),
+      ),
+    ),
     );
   }
 }
