@@ -161,11 +161,11 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                         condition: patient.condition,
                         lastSeen: patient.lastSeen,
                         sessionsCount: patient.sessionsCount,
-                        onNewChat: () {
+                        onContinueChat: () {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'Nouveau chat avec ${patient.name}',
+                                'Continuer chat avec ${patient.name}',
                               ),
                               behavior: SnackBarBehavior.floating,
                               margin: const EdgeInsets.all(16),
