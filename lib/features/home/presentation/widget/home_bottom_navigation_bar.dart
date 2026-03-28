@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:psychora/core/navigation/app_router.dart';
 
 class HomeBottomNavigationBar extends StatelessWidget {
   const HomeBottomNavigationBar({super.key});
@@ -35,7 +37,7 @@ class HomeBottomNavigationBar extends StatelessWidget {
             activeIcon: Icons.menu_book,
             label: 'Resources',
             isActive: false,
-            onTap: () {},
+            onTap: () => GoRouter.of(context).go(AppRouter.resources),
           ),
           _BottomButton(
             icon: Icons.person_outline,
