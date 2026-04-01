@@ -9,9 +9,12 @@ import 'package:psychora/features/login_page/presentation/page/login_page.dart';
 import 'package:psychora/features/patient_dashboard/presentation/page/patient_dashboard_page.dart';
 import 'package:psychora/features/profile_page/presentation/page/profile_page.dart';
 import 'package:psychora/features/reset_password/presentation/page/reset_password.dart';
+import 'package:psychora/features/resources/presentation/page/resources_page.dart';
+import 'package:psychora/features/splash_screen/splash_screen.dart';
 import 'package:psychora/features/signup_page/presentation/page/signup_page.dart';
 
 class AppRouter {
+  static const String splash = '/splash';
   static const String home = '/home';
   static const String login = '/login';
   static const String signup = '/signup';
@@ -22,10 +25,16 @@ class AppRouter {
   static const String resetpassword = '/resetpassword';
   static const String patientdashboardpage = '/patientdashboardpage';
   static const String profilepage = '/profilepage';
+  static const String resourcesPage = '/resources';
 
   static final GoRouter router = GoRouter(
-    initialLocation: login,
+    initialLocation: splash,
     routes: [
+      GoRoute(
+        path: splash,
+        name: RouteName.splash,
+        builder: (context, state) => const SplashScreen(),
+      ),
       GoRoute(
         path: home,
         name: RouteName.home,
@@ -79,6 +88,11 @@ class AppRouter {
         path: profilepage,
         name: RouteName.profilepage,
         builder: (context, state) => const ProfilePage(),
+      ),
+      GoRoute(
+        path: resourcesPage,
+        name: RouteName.resourcesPage,
+        builder: (context, state) => const ResourcesPage(),
       ),
     ],
   );

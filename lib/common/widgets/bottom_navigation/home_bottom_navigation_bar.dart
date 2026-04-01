@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psychora/common/widgets/bottom_navigation/bottombutton.dart';
 import 'package:psychora/core/constants/route_name.dart';
+import 'package:psychora/core/navigation/app_router.dart';
 
 
 class HomeBottomNavigationBar extends StatefulWidget {
@@ -13,24 +14,20 @@ class HomeBottomNavigationBar extends StatefulWidget {
 }
 
 class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
-  int _selectedIndex = 0;
-
   int _getIndexFromLocation(BuildContext context) {
-    final location = GoRouterState.of(context).uri.toString();
-    
-    if (location.contains(RouteName.patientdashboardpage)) {
+    final location = GoRouterState.of(context).uri.path;
+
+    if (location.contains(AppRouter.patientdashboardpage)) {
       return 1;
-    } else if (location.contains(RouteName.profilepage)) {
+    } else if (location.contains(AppRouter.resourcesPage)) {
+      return 2;
+    } else if (location.contains(AppRouter.profilepage)) {
       return 3;
     }
     return 0; // Home par défaut
   }
 
   void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-    });
-
     // Navigation logic
     switch (index) {
       case 0:
@@ -40,7 +37,7 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
         context.goNamed(RouteName.patientdashboardpage);
         break;
       case 2:
-        debugPrint('Resources tapped');
+        context.goNamed(RouteName.resourcesPage);
         break;
       case 3:
         context.goNamed(RouteName.profilepage);
@@ -50,8 +47,7 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
 
   @override
   Widget build(BuildContext context) {
-    // Mettre à jour l'index basé sur la route actuelle
-    _selectedIndex = _getIndexFromLocation(context);
+    final selectedIndex = _getIndexFromLocation(context);
 
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 10),
@@ -68,28 +64,28 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
             icon: Icons.home_outlined,
             activeIcon: Icons.home,
             label: 'Home',
-            isActive: _selectedIndex == 0,
+            isActive: selectedIndex == 0,
             onTap: () => _onItemTapped(0),
           ),
           BottomButton(
             icon: Icons.people_outline,
             activeIcon: Icons.people,
             label: 'Patients',
-            isActive: _selectedIndex == 1,
+            isActive: selectedIndex == 1,
             onTap: () => _onItemTapped(1),
           ),
           BottomButton(
             icon: Icons.menu_book_outlined,
             activeIcon: Icons.menu_book,
             label: 'Resources',
-            isActive: _selectedIndex == 2,
+            isActive: selectedIndex == 2,
             onTap: () => _onItemTapped(2),
           ),
           BottomButton(
             icon: Icons.person_outline,
             activeIcon: Icons.person,
             label: 'Profile',
-            isActive: _selectedIndex == 3,
+            isActive: selectedIndex == 3,
             onTap: () => _onItemTapped(3),
           ),
         ],

@@ -21,5 +21,9 @@ class QuickActionController {
     context.pushNamed(RouteName.chatbotinterface);
   }
 
+  static void handleNavigateToResources(BuildContext context) {
+    context.goNamed(RouteName.resourcesPage);
+  }
+
   
 }

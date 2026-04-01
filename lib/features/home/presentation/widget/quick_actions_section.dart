@@ -55,6 +55,12 @@ class QuickActionsSection extends StatelessWidget {
                   };
                 }
 
+                if (item.title == 'Resources') {
+                  action = () {
+                    QuickActionController.handleNavigateToResources(context);
+                  };
+                }
+                
                 return QuickActionTile(item: item, onTap: action);
               },
             ),

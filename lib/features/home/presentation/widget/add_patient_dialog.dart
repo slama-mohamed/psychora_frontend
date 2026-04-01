@@ -85,7 +85,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
           SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Ajouter un patient',
+              'Add New Patient',
               style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
           ),
@@ -185,7 +185,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          child: const Text('Annuler'),
+          child: const Text('Exit' , style: TextStyle(color: Colors.black),),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(
@@ -205,7 +205,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
                     color: Colors.white,
                   ),
                 )
-              : const Text('Ajouter'),
+              : const Text('Add' , style: TextStyle(color: Colors.white),),
         ),
       ],
     );
