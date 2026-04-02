@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 // ─── App theme color ──────────────────────────────────────────────────────────
-const kGreen = Color(0xFF2E7D32);
+const kGreen = Color(0xFF3D9970);
 const kGreenLight = Color(0xFFE8F5E9);
 const kGreenMid = Color(0xFF43A047);
 
