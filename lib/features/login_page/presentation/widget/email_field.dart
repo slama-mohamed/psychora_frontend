@@ -43,6 +43,8 @@ class _EmailFieldState extends State<EmailField> {
       setState(() {
         _hasInteracted = true;
       });
+    } else {
+      setState(() {});
     }
   }
 
@@ -51,30 +53,38 @@ class _EmailFieldState extends State<EmailField> {
   }
 
   InputBorder _getInputBorder() {
-    if (!_hasInteracted) {
+    final isValid = ValidationPatterns.isValidEmail(widget.controller.text);
+
+    if (_focusNode.hasFocus) {
+      // Focus actif → vert si valide, rouge si invalide
       return OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
+        borderSide: BorderSide(
+          color: widget.controller.text.isEmpty || !isValid
+              ? Colors.red
+              : const Color(0xFF3D9970),
+          width: 1,
+        ),
       );
     }
 
-    if (widget.controller.text.isEmpty) {
+    if (_hasInteracted) {
+      // Focus perdu
       return OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Colors.red, width: 1),
+        borderSide: BorderSide(
+          color: widget.controller.text.isEmpty || !isValid
+              ? Colors.red
+              : const Color(0xFFE5E7EB),
+          width: 1,
+        ),
       );
     }
 
-    if (ValidationPatterns.isValidEmail(widget.controller.text)) {
-      return OutlineInputBorder(
-        borderRadius: BorderRadius.circular(8),
-        borderSide: const BorderSide(color: Color(0xFF3D9970), width: 1),
-      );
-    }
-
+    // Jamais touché → gris
     return OutlineInputBorder(
       borderRadius: BorderRadius.circular(8),
-      borderSide: const BorderSide(color: Colors.red, width: 1),
+      borderSide: const BorderSide(color: Color(0xFFE5E7EB), width: 1),
     );
   }
 
@@ -89,7 +99,10 @@ class _EmailFieldState extends State<EmailField> {
         fontSize: 15,
         color: Color(0xFF1F2937),
       ),
-      validator: EmailValidator.validate,
+      validator: (value) {
+        if (!_hasInteracted) return null;
+        return EmailValidator.validate(value);
+      },
       decoration: InputDecoration(
         hintText: 'Enter your email',
         hintStyle: const TextStyle(
@@ -105,20 +118,8 @@ class _EmailFieldState extends State<EmailField> {
         fillColor: Colors.white,
         enabledBorder: _getInputBorder(),
         focusedBorder: _getInputBorder(),
-        errorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Colors.red,
-            width: 1,
-          ),
-        ),
-        focusedErrorBorder: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(8),
-          borderSide: const BorderSide(
-            color: Colors.red,
-            width: 1,
-          ),
-        ),
+        errorBorder: _getInputBorder(),
+        focusedErrorBorder: _getInputBorder(),
         contentPadding: const EdgeInsets.symmetric(
           horizontal: 16,
           vertical: 14,
