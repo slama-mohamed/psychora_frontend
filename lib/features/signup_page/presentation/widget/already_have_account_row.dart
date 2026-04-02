@@ -14,7 +14,8 @@ class AlreadyHaveAccountRow extends StatelessWidget {
           style: const TextStyle(
             color: Color(0xFF6B7280),
             fontSize: 14,
-            fontWeight: FontWeight.w400,
+            fontWeight: FontWeight.w500,
+            letterSpacing: 0.3,
           ),
           children: [
             TextSpan(
@@ -23,6 +24,7 @@ class AlreadyHaveAccountRow extends StatelessWidget {
                 color: Color(0xFF3D9970),
                 fontWeight: FontWeight.w600,
                 fontSize: 14,
+                letterSpacing: 0.3,
               ),
               recognizer: TapGestureRecognizer()
                 ..onTap = () {

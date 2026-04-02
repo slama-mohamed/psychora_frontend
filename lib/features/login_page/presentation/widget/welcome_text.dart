@@ -18,19 +18,21 @@ class WelcomeText extends StatelessWidget {
           Text(
             title!,
             style: const TextStyle(
-              fontSize: 21,
-              fontWeight: FontWeight.bold,
+              fontSize: 28,
+              fontWeight: FontWeight.w700,
               color: Color(0xFF1A1A2E),
+              letterSpacing: -0.5,
             ),
           ),
-          const SizedBox(height: 6),
+          const SizedBox(height: 8),
         ],
         Text(
           subtitle,
           style: const TextStyle(
-            fontSize: 14,
+            fontSize: 15,
             color: Color(0xFF6B7280),
             fontWeight: FontWeight.w400,
+            letterSpacing: 0.2,
           ),
         ),
       ],

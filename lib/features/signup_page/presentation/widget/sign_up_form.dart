@@ -46,149 +46,171 @@ class _SignupFormState extends State<SignupForm> {
   @override
   Widget build(BuildContext context) {
     return SingleChildScrollView(
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const SizedBox(height: 50),
-          Center(
-            child: Column(
-              children: [
-                Image.asset(
-                  AssetsConstant.appLogo,
-                  width: 160,
-                  height: 160,
-                  fit: BoxFit.contain,
-                  filterQuality: FilterQuality.high,
-                  errorBuilder: (context, error, stackTrace) {
-                    return const Icon(
-                      Icons.psychology_outlined,
-                      color: Color(0xFF3D9970),
-                      size: 40,
-                    );
-                  },
-                ),
-                
-                const SizedBox(height: 8),
-                
-                const WelcomeText(
-                  title: 'Create Account',
-                  subtitle: 'Join the Psychora community',
-                ),
-              
-              ],
-            ),
-          ),
-         
-          const SizedBox(height: 30),
-         
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Form(
-              key: widget.controller.formKey,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const SizedBox(height: 20),
+            Center(
               child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  RoleSelector(
-                    selectedRole: widget.controller.selectedRole,
-                    onRoleChanged: (role) {
-                      setState(() => widget.controller.selectedRole = role);
-                    },
-                  ),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'FULL NAME',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF6B7280),
-                      letterSpacing: 0.5,
+                  Container(
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      boxShadow: [
+                        BoxShadow(
+                          // ignore: deprecated_member_use
+                          color: const Color(0xFF3D9970).withOpacity(0.15),
+                          blurRadius: 24,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Image.asset(
+                      AssetsConstant.appLogo,
+                      width: 120,
+                      height: 120,
+                      fit: BoxFit.contain,
+                      filterQuality: FilterQuality.high,
+                      errorBuilder: (context, error, stackTrace) {
+                        return Container(
+                          width: 120,
+                          height: 120,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: Color(0xFFE8F5E9),
+                          ),
+                          child: const Icon(
+                            Icons.psychology_outlined,
+                            color: Color(0xFF3D9970),
+                            size: 50,
+                          ),
+                        );
+                      },
                     ),
                   ),
-                  
-                  const SizedBox(height: 8),
-                  FullNameField(controller: widget.controller.fullNameController),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'EMAIL ADDRESS',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF6B7280),
-                      letterSpacing: 0.5,
-                    ),
+                  const SizedBox(height: 24),
+                  const WelcomeText(
+                    title: 'Create Account',
+                    subtitle: 'Join the Psychora community',
                   ),
-                  const SizedBox(height: 8),
-                  EmailField(controller: widget.controller.emailController),
-                  const SizedBox(height: 20),
-                  const Text(
-                    'PASSWORD',
-                    style: TextStyle(
-                      fontSize: 11,
-                      fontWeight: FontWeight.w600,
-                      color: Color(0xFF6B7280),
-                      letterSpacing: 0.5,
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  PasswordFieldSignup(controller: widget.controller.passwordController),
                 ],
               ),
             ),
-          ),
-          const SizedBox(height: 24),
-          Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 24),
-            child: Column(
-              children: [
-                const SizedBox(height: 20),
-                
-                SizedBox(
-                  width: double.infinity,
-                  height: 54,
-                  child: ElevatedButton(
-                    onPressed: _isFormValid
-                        ? () {
-                            if (widget.controller.formKey.currentState!.validate()) {
-                              widget.controller.onContinue(context);
-                            }
-                          }
-                        : null,
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: _isFormValid ? const Color(0xFF3D9970) : Colors.grey,
-                      foregroundColor: Colors.white,
-                      elevation: 0,
-                      shadowColor: Colors.transparent,
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(8),
+            const SizedBox(height: 32),
+            Container(
+              decoration: BoxDecoration(
+                color: Colors.white,
+                borderRadius: BorderRadius.circular(16),
+                boxShadow: [
+                  BoxShadow(
+                    // ignore: deprecated_member_use
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 16,
+                    offset: const Offset(0, 2),
+                  ),
+                ],
+              ),
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 24),
+              child: Form(
+                key: widget.controller.formKey,
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RoleSelector(
+                      selectedRole: widget.controller.selectedRole,
+                      onRoleChanged: (role) {
+                        setState(() => widget.controller.selectedRole = role);
+                      },
+                    ),
+                    const SizedBox(height: 24),
+                    const Text(
+                      'FULL NAME',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                        letterSpacing: 0.3,
                       ),
                     ),
-                    child: const Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        Text(
-                          'Continue',
-                          style: TextStyle(
-                            fontSize: 16,
-                            fontWeight: FontWeight.w600,
-                            letterSpacing: 0.3,
+                    const SizedBox(height: 10),
+                    FullNameField(controller: widget.controller.fullNameController),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'EMAIL ADDRESS',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    EmailField(controller: widget.controller.emailController),
+                    const SizedBox(height: 20),
+                    const Text(
+                      'PASSWORD',
+                      style: TextStyle(
+                        fontSize: 12,
+                        fontWeight: FontWeight.w600,
+                        color: Color(0xFF374151),
+                        letterSpacing: 0.3,
+                      ),
+                    ),
+                    const SizedBox(height: 10),
+                    PasswordFieldSignup(controller: widget.controller.passwordController),
+                    const SizedBox(height: 28),
+                    SizedBox(
+                      width: double.infinity,
+                      height: 52,
+                      child: ElevatedButton(
+                        onPressed: _isFormValid
+                            ? () {
+                                if (widget.controller.formKey.currentState!
+                                    .validate()) {
+                                  widget.controller.onContinue(context);
+                                }
+                              }
+                            : null,
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: _isFormValid
+                              ? const Color(0xFF3D9970)
+                              // ignore: deprecated_member_use
+                              : const Color(0xFF3D9970).withOpacity(0.5),
+                          foregroundColor: Colors.white,
+                          elevation: 0,
+                          shadowColor: Colors.transparent,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(10),
                           ),
                         ),
-                        SizedBox(width: 8),
-                        Icon(Icons.arrow_forward, size: 18),
-                      ],
+                        child: const Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Text(
+                              'Continue',
+                              style: TextStyle(
+                                fontSize: 16,
+                                fontWeight: FontWeight.w700,
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                            SizedBox(width: 10),
+                            Icon(Icons.arrow_forward, size: 18),
+                          ],
+                        ),
+                      ),
                     ),
-                  ),
+                  ],
                 ),
-                
-                const SizedBox(height: 16),
-                
-                const AlreadyHaveAccountRow(),
-                
-                const SizedBox(height: 24),
-              ],
+              ),
             ),
-          ),
-        ],
+            const SizedBox(height: 20),
+            const AlreadyHaveAccountRow(),
+            const SizedBox(height: 24),
+          ],
+        ),
       ),
     );
   }

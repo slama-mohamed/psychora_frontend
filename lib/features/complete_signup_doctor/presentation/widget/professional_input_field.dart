@@ -69,9 +69,14 @@ class _ProfessionalInputFieldState extends State<ProfessionalInputField> {
       children: [
         Text(
           widget.label,
-          style: widget.textStyle ?? FormStyles.labelStyle,
+          style: widget.textStyle ?? const TextStyle(
+            fontSize: 12,
+            fontWeight: FontWeight.w600,
+            color: Color(0xFF374151),
+            letterSpacing: 0.3,
+          ),
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 10),
         TextFormField(
           controller: widget.controller,
           focusNode: _focusNode,
@@ -91,7 +96,7 @@ class _ProfessionalInputFieldState extends State<ProfessionalInputField> {
             focusedErrorBorder: FormStyles.errorBorder,
           ),
         ),
-        const SizedBox(height: 18),
+        const SizedBox(height: 20),
       ],
     );
   }

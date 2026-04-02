@@ -20,21 +20,34 @@ class ProgressBar extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
-            Text("Step $currentStep of $totalSteps"),
+            Text(
+              "Step $currentStep of $totalSteps",
+              style: const TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.w600,
+                color: Color(0xFF374151),
+                letterSpacing: 0.3,
+              ),
+            ),
             Text(
               "${(percentage * 100).toStringAsFixed(0)}%",
-              style: const TextStyle(color: Colors.green),
+              style: const TextStyle(
+                color: Color(0xFF3D9970),
+                fontWeight: FontWeight.w700,
+                fontSize: 14,
+                letterSpacing: 0.3,
+              ),
             ),
           ],
         ),
-        const SizedBox(height: 8),
+        const SizedBox(height: 12),
         ClipRRect(
-          borderRadius: BorderRadius.circular(10),
+          borderRadius: BorderRadius.circular(8),
           child: LinearProgressIndicator(
             value: percentage,
-            minHeight: 6,
-            backgroundColor: Colors.grey,
-            valueColor: const AlwaysStoppedAnimation(Colors.green),
+            minHeight: 8,
+            backgroundColor: const Color(0xFFE5E7EB),
+            valueColor: const AlwaysStoppedAnimation(Color(0xFF3D9970)),
           ),
         ),
       ],

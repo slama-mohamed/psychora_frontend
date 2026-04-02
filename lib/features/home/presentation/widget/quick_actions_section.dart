@@ -1,80 +1,71 @@
 import 'package:flutter/material.dart';
-import 'package:psychora/features/home/presentation/widget/home_form.dart';
-
+import 'package:psychora/features/home/presentation/function/quickactioncontroller.dart';
+import 'package:psychora/features/home/presentation/widget/home_form_data.dart';
+import 'package:psychora/features/home/presentation/widget/quickactiontile.dart';
 class QuickActionsSection extends StatelessWidget {
   const QuickActionsSection({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      decoration: BoxDecoration(
-        borderRadius: BorderRadius.circular(16),
-        color: Colors.white,
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          const Text(
-            'Quick Actions',
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: FontWeight.w700,
-              color: Color(0xFF1F2937),
+    return Card(
+      margin: EdgeInsets.zero,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 0,
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(16),
+          color: Colors.white,
+        ),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            const Text(
+              'Quick Actions',
+              style: TextStyle(
+                fontSize: 16,
+                fontWeight: FontWeight.w700,
+                color: Color(0xFF1F2937),
+              ),
             ),
-          ),
-          const SizedBox(height: 14),
-          GridView.builder(
-            shrinkWrap: true,
-            physics: const NeverScrollableScrollPhysics(),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 2,
-              mainAxisSpacing: 12,
-              crossAxisSpacing: 12,
-              childAspectRatio: 2.0, // taller buttons
+            const SizedBox(height: 16),
+            GridView.builder(
+              shrinkWrap: true,
+              physics: const NeverScrollableScrollPhysics(),
+              gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+                crossAxisCount: 2,
+                mainAxisSpacing: 12,
+                crossAxisSpacing: 12,
+                childAspectRatio: 1.6,
+              ),
+              itemCount: HomeFormData.quickActions.length,
+              itemBuilder: (context, index) {
+                final item = HomeFormData.quickActions[index];
+                VoidCallback? action = item.onTap;
+
+                if (item.title == 'New Patient') {
+                  action = () async {
+                    await QuickActionController.openAddPatientDialog(context);
+                  };
+                }
+
+                if (item.title == 'Start Chat') {
+                  action = () {
+                    QuickActionController.handleNavigateToChat(context);
+                  };
+                }
+
+                if (item.title == 'Resources') {
+                  action = () {
+                    QuickActionController.handleNavigateToResources(context);
+                  };
+                }
+                
+                return QuickActionTile(item: item, onTap: action);
+              },
             ),
-            itemCount: HomeFormData.quickActions.length,
-            itemBuilder: (context, index) {
-              final item = HomeFormData.quickActions[index];
-              return _QuickActionTile(item: item);
-            },
-          ),
-        ],
-      ),
-    );
-  }
-}
-
-class _QuickActionTile extends StatelessWidget {
-  const _QuickActionTile({required this.item});
-
-  final QuickActionItem item;
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      decoration: BoxDecoration(
-        color: item.backgroundColor,
-        borderRadius: BorderRadius.circular(14),
-      ),
-      child: Column(
-        mainAxisAlignment: MainAxisAlignment.center,
-        children: [
-          Icon(
-            item.icon,
-            size: 26,
-            color: item.foregroundColor,
-          ),
-          const SizedBox(height: 8),
-          Text(
-            item.title,
-            style: TextStyle(
-              fontSize: 14,
-              fontWeight: FontWeight.w600,
-              color: item.foregroundColor,
-            ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }

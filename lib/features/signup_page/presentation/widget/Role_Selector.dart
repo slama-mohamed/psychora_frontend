@@ -21,15 +21,13 @@ class RoleSelector extends StatelessWidget {
         const Text(
           'CHOOSE YOUR ROLE',
           style: TextStyle(
-            fontSize: 11,
+            fontSize: 12,
             fontWeight: FontWeight.w600,
-            color: Color(0xFF6B7280),
-            letterSpacing: 0.5,
+            color: Color(0xFF374151),
+            letterSpacing: 0.3,
           ),
         ),
-
-        const SizedBox(height: 8),
-
+        const SizedBox(height: 12),
         Row(
           children: [
             Expanded(

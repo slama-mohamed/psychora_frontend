@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:psychora/features/login_page/presentation/function/handle_forgot_password.dart';
 
 class RowPassword extends StatelessWidget {
   const RowPassword({super.key});
@@ -20,6 +21,7 @@ class RowPassword extends StatelessWidget {
                 TextButton(
                   onPressed: () {
                     // Handle forgot password
+                    handleForgotPassword( context);
                   },
                   style: TextButton.styleFrom(
                     padding: EdgeInsets.zero,
