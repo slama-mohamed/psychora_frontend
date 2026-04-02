@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:psychora/features/profile_page/presentation/function/handle_navigation_editprofile.dart';
 
 class EditProfileButton extends StatelessWidget {
   final VoidCallback onPressed;
@@ -11,7 +12,7 @@ class EditProfileButton extends StatelessWidget {
       width: double.infinity,
       height: 48,
       child: ElevatedButton(
-        onPressed: onPressed,
+        onPressed: () => handleNavigationEditProfile(context),
         style: ElevatedButton.styleFrom(
           backgroundColor: const Color(0xFF3D9970),
           shape: RoundedRectangleBorder(
@@ -22,7 +23,7 @@ class EditProfileButton extends StatelessWidget {
         child: const Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(Icons.edit_outlined, size: 20),
+            Icon(Icons.edit_outlined, size: 20, color: Colors.white),
             SizedBox(width: 8),
             Text(
               'Edit Profile',
@@ -30,6 +31,7 @@ class EditProfileButton extends StatelessWidget {
                 fontSize: 15,
                 fontWeight: FontWeight.w700,
                 letterSpacing: 0.3,
+                color: Colors.white,
               ),
             ),
           ],

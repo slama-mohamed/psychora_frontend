@@ -11,5 +11,6 @@ class RouteName {
   static const String patientdashboardpage = 'patientdashboardpage';
   static const String profilepage = 'profilepage';
   static const String resourcesPage = 'resourcesPage';
+  static const String editProfilePage = 'editProfilePage';
 
 }
