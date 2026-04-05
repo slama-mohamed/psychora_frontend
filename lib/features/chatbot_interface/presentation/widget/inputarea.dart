@@ -4,11 +4,15 @@ import 'package:flutter/material.dart';
 class InputArea extends StatelessWidget {
   final TextEditingController controller;
   final VoidCallback onSend;
+  final bool enabled;
+  final bool isLoading;
 
   const InputArea({
     super.key,
     required this.controller,
     required this.onSend,
+    this.enabled = true,
+    this.isLoading = false,
   });
 
   @override
@@ -31,7 +35,8 @@ class InputArea extends StatelessWidget {
         children: [
           Expanded(
             child: TextField(
-              controller: controller,        // ← reçu en paramètre
+              controller: controller,
+              enabled: enabled,
               decoration: InputDecoration(
                 hintText: 'Tapez votre message...',
                 hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
@@ -48,18 +53,29 @@ class InputArea extends StatelessWidget {
               ),
               style: const TextStyle(color: Color(0xFF1F2937), fontSize: 14),
               maxLines: null,
-              onSubmitted: (_) => onSend(),  // ← reçu en paramètre
+              onSubmitted: enabled ? (_) => onSend() : null,
             ),
           ),
           Padding(
             padding: const EdgeInsets.only(right: 8.0),
             child: IconButton(
-              onPressed: onSend,             // ← reçu en paramètre
-              icon: const Icon(
-                Icons.send_rounded,
-                color: Color(0xFF3D9970),
-                size: 20,
-              ),
+              onPressed: enabled ? onSend : null,
+              icon: isLoading
+                  ? const SizedBox(
+                      width: 18,
+                      height: 18,
+                      child: CircularProgressIndicator(
+                        strokeWidth: 2,
+                        valueColor: AlwaysStoppedAnimation<Color>(
+                          Color(0xFF3D9970),
+                        ),
+                      ),
+                    )
+                  : const Icon(
+                      Icons.send_rounded,
+                      color: Color(0xFF3D9970),
+                      size: 20,
+                    ),
               tooltip: 'Envoyer',
             ),
           ),

@@ -13,12 +13,15 @@ class ChatinterfaceForm extends StatefulWidget {
 
 class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
   late final TextEditingController _messageController;
+  late final ChatServices _chatServices;
   final List<ChatMessage> messages = [];
+  bool _isSending = false;
 
   @override
   void initState() {
     super.initState();
     _messageController = TextEditingController();
+    _chatServices = ChatServices();
     // Add welcome message
     messages.add(
       const ChatMessage(
@@ -35,36 +38,76 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
     super.dispose();
   }
 
-  void _sendMessage() {
-    if (_messageController.text.trim().isEmpty) return;
+  Future<void> _sendMessage() async {
+    if (_isSending) return;
+
+    final String userText = _messageController.text.trim();
+    if (userText.isEmpty) return;
 
     setState(() {
-      // Add user message
       messages.add(
         ChatMessage(
-          text: _messageController.text,
+          text: userText,
           isUser: true,
           timestamp: getCurrentTime(),
         ),
       );
-
-      // Simulate bot response
-      Future.delayed(const Duration(milliseconds: 500), () {
-        if (mounted) {
-          setState(() {
-            messages.add(
-              ChatMessage(
-                text: 'J\'ai bien compris votre message. Comment puis-je vous aider davantage?',
-                isUser: false,
-                timestamp: getCurrentTime(),
-              ),
-            );
-          });
-        }
-      });
-
       _messageController.clear();
+      _isSending = true;
     });
+
+    try {
+      final String botReply = await _chatServices.sendMessage(
+        userMessage: userText,
+        history: _buildHistory(),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        messages.add(
+          ChatMessage(
+            text: botReply,
+            isUser: false,
+            timestamp: getCurrentTime(),
+          ),
+        );
+      });
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      setState(() {
+        messages.add(
+          ChatMessage(
+            text: 'Impossible de joindre le chatbot pour le moment. Détail: $error',
+            isUser: false,
+            timestamp: getCurrentTime(),
+          ),
+        );
+      });
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSending = false;
+        });
+      }
+    }
+  }
+
+  List<Map<String, dynamic>> _buildHistory() {
+    return messages
+        .map(
+          (ChatMessage message) => <String, dynamic>{
+            'role': message.isUser ? 'user' : 'assistant',
+            'content': message.text,
+            'timestamp': message.timestamp,
+          },
+        )
+        .toList();
   }
 
   @override
@@ -110,7 +153,11 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
         // Input area
         InputArea(
           controller: _messageController,
-          onSend: _sendMessage,
+          onSend: () {
+            _sendMessage();
+          },
+          enabled: !_isSending,
+          isLoading: _isSending,
         ),
         const SizedBox(height: 8),
       ],

@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
+import 'package:psychora/core/constants/end_point_url.dart';
 
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/unauthorized_interceptor.dart';
@@ -52,7 +53,7 @@ class ApiService {
   Future<Response<dynamic>> loginUser({
     required String email,
     required String password,
-    String path = '/api/psy/login',
+    String path = EndPointUrl.login,
   }) async {
     final response = await _dio.post<dynamic>(
       path,
@@ -85,7 +86,7 @@ class ApiService {
     required String location,
     required String phone,
     required int yearsOfExperience,
-    String path = '/api/psy/signup',
+    String path = EndPointUrl.signup,
   }) async {
     final response = await _dio.post<dynamic>(
       path,
@@ -115,8 +116,6 @@ class ApiService {
 
     return response;
   }
-
-  
   
   
   
