@@ -30,7 +30,7 @@ class AppRouter {
   static const String editProfilePage = '/editprofile';
 
   static final GoRouter router = GoRouter(
-    initialLocation: forgotPassword,
+    initialLocation: home,
     routes: [
       GoRoute(
         path: splash,
@@ -82,6 +82,13 @@ class AppRouter {
         builder: (context, state) => ResetPassword(
           email: state.uri.queryParameters['email'],
           token: state.uri.queryParameters['token'],
+        ),
+      ),
+      GoRoute(
+        path: '$resetpassword/:token',
+        builder: (context, state) => ResetPassword(
+          email: state.uri.queryParameters['email'],
+          token: state.pathParameters['token'] ?? state.uri.queryParameters['token'],
         ),
       ),
       GoRoute(

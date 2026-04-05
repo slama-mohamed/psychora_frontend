@@ -2,6 +2,7 @@
 
 import 'package:flutter/material.dart';
 import 'package:psychora/core/constants/assets_constant.dart';
+import 'package:psychora/core/network/api_service.dart';
 import 'package:psychora/features/forgot_password/presentation/widget/mytext.dart';
 import 'package:psychora/features/forgot_password/presentation/widget/reset_button.dart';
 import 'package:psychora/features/forgot_password/presentation/widget/email_field.dart';
@@ -16,6 +17,8 @@ class Forgotpasswordform extends StatefulWidget {
 class _ForgotpasswordformState extends State<Forgotpasswordform> {
   late final TextEditingController _emailController;
   final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -27,6 +30,53 @@ class _ForgotpasswordformState extends State<Forgotpasswordform> {
   void dispose() {
     _emailController.dispose();
     super.dispose();
+  }
+
+  Future<void> _sendResetLink() async {
+    if (_isSubmitting) return;
+
+    final FormState? formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      await _apiService.requestPasswordResetLink(
+        email: _emailController.text.trim(),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('A password reset link has been sent to your email.'),
+          backgroundColor: Color(0xFF3D9970),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
   }
 
   @override
@@ -114,7 +164,10 @@ class _ForgotpasswordformState extends State<Forgotpasswordform> {
                     const SizedBox(height: 10),
                     EmailField(controller: _emailController),
                     const SizedBox(height: 28),
-                    ResetButton(formkey: _formKey),
+                    ResetButton(
+                      isLoading: _isSubmitting,
+                      onPressed: _sendResetLink,
+                    ),
                   ],
                 ),
               ),

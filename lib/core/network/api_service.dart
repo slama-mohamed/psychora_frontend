@@ -117,6 +117,18 @@ class ApiService {
     return response;
   }
 
+  Future<Response<dynamic>> requestPasswordResetLink({
+    required String email,
+    String path = EndPointUrl.forgotPassword,
+  }) async {
+    return _dio.post<dynamic>(
+      path,
+      data: <String, dynamic>{
+        'email': email,
+      },
+    );
+  }
+
   Future<Response<dynamic>> resetPassword({
     required String newPassword,
     required String confirmPassword,
@@ -142,7 +154,6 @@ class ApiService {
       data: data,
     );
   }
-  
   
   
   
@@ -172,4 +183,5 @@ class ApiService {
         ),
       );
   }
+
 }

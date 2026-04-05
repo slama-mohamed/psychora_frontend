@@ -9,6 +9,7 @@ class PatientCard extends StatelessWidget {
   final int sessionsCount;
   final VoidCallback? onContinueChat;
   final VoidCallback? onSummary;
+  final VoidCallback? onDelete;
   final VoidCallback? onTap;
 
   const PatientCard({
@@ -21,6 +22,7 @@ class PatientCard extends StatelessWidget {
     required this.sessionsCount,
     this.onContinueChat,
     this.onSummary,
+    this.onDelete,
     this.onTap,
   });
 
@@ -83,7 +85,7 @@ class PatientCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(0.07),
+            color: Colors.black.withValues(alpha: 0.07),
             blurRadius: 10,
             spreadRadius: 0,
             offset: const Offset(0, 2),
@@ -238,6 +240,25 @@ class PatientCard extends StatelessWidget {
                       color: Color(0xFF6B7280),
                     ),
                     tooltip: 'Summary',
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFFEE2E2),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: IconButton(
+                    onPressed: onDelete,
+                    icon: const Icon(
+                      Icons.delete_outline_rounded,
+                      size: 18,
+                      color: Color(0xFFDC2626),
+                    ),
+                    tooltip: 'Delete patient',
                     padding: EdgeInsets.zero,
                   ),
                 ),

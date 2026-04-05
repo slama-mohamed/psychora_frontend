@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/barre_de_recherche.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/header_text.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/patient_card.dart';
@@ -15,6 +16,7 @@ class Patientdashboardform extends StatefulWidget {
 
 class _PatientdashboardformState extends State<Patientdashboardform> {
   late TextEditingController _searchController;
+  final PatientStore _patientStore = PatientStore();
   late List<PatientModel> _allPatients;
   late List<PatientModel> _filteredPatients;
 
@@ -22,54 +24,15 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
   void initState() {
     super.initState();
     _searchController = TextEditingController();
-    _initializePatients();
+    _allPatients = _patientStore.currentPatients;
     _filteredPatients = _allPatients;
     _searchController.addListener(_filterPatients);
+    _patientStore.patientsNotifier.addListener(_handlePatientsChanged);
   }
 
-  void _initializePatients() {
-    _allPatients = [
-      PatientModel(
-        id: 'P001',
-        name: 'Mohamed Slama',
-        age: '28 years',
-        condition: 'Major Depressive Disorder',
-        lastSeen: '1 week ago',
-        sessionsCount: 8,
-      ),
-      PatientModel(
-        id: 'P002',
-        name: 'Nour Mnif',
-        age: '22 years',
-        condition: 'Generalized Anxiety Disorder',
-        lastSeen: '3 days ago',
-        sessionsCount: 5,
-      ),
-      PatientModel(
-        id: 'P003',
-        name: 'Ilef Boualleg',
-        age: '26 years',
-        condition: 'PTSD',
-        lastSeen: '5 days ago',
-        sessionsCount: 6,
-      ),
-      PatientModel(
-        id: 'P004',
-        name: 'Amira Mohamed',
-        age: '30 years',
-        condition: 'Sleep Disorder',
-        lastSeen: '2 days ago',
-        sessionsCount: 9,
-      ),
-      PatientModel(
-        id: 'P005',
-        name: 'Ali Ibrahim',
-        age: '35 years',
-        condition: 'Stress Management',
-        lastSeen: '1 month ago',
-        sessionsCount: 15,
-      ),
-    ];
+  void _handlePatientsChanged() {
+    _allPatients = _patientStore.currentPatients;
+    _filterPatients();
   }
 
   void _filterPatients() {
@@ -83,9 +46,55 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     });
   }
 
+  Future<void> _confirmAndDeletePatient(PatientModel patient) async {
+    final bool? shouldDelete = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Supprimer patient'),
+          content: Text('Supprimer ${patient.name} de la liste des patients ?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFDC2626),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Supprimer'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (shouldDelete != true) {
+      return;
+    }
+
+    _patientStore.removePatientById(patient.id);
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Patient supprimé: ${patient.name}'),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
   @override
   void dispose() {
     _searchController.dispose();
+    _patientStore.patientsNotifier.removeListener(_handlePatientsChanged);
     super.dispose();
   }
 
@@ -184,6 +193,9 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                               duration: const Duration(seconds: 2),
                             ),
                           );
+                        },
+                        onDelete: () {
+                          _confirmAndDeletePatient(patient);
                         },
                       );
                     },
