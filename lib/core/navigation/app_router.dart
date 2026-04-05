@@ -69,7 +69,25 @@ class AppRouter {
       GoRoute(
         path: chatbotinterface,
         name: RouteName.chatbotinterface,
-        builder: (context, state) => const ChatbotInterface(),
+        builder: (context, state) {
+          String? patientId;
+          String? patientName;
+
+          if (state.extra is Map<String, dynamic>) {
+            final Map<String, dynamic> extra =
+                state.extra! as Map<String, dynamic>;
+            patientId = extra['patientId'] as String?;
+            patientName = extra['patientName'] as String?;
+          }
+
+          patientId ??= state.uri.queryParameters['patientId'];
+          patientName ??= state.uri.queryParameters['patientName'];
+
+          return ChatbotInterface(
+            patientId: patientId,
+            patientName: patientName,
+          );
+        },
       ),
       GoRoute(
         path: forgotPassword,

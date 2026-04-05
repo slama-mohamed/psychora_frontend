@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:psychora/core/constants/route_name.dart';
 import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
 import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/barre_de_recherche.dart';
@@ -171,15 +173,12 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                         lastSeen: patient.lastSeen,
                         sessionsCount: patient.sessionsCount,
                         onContinueChat: () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(
-                              content: Text(
-                                'Continuer chat avec ${patient.name}',
-                              ),
-                              behavior: SnackBarBehavior.floating,
-                              margin: const EdgeInsets.all(16),
-                              duration: const Duration(seconds: 2),
-                            ),
+                          context.pushNamed(
+                            RouteName.chatbotinterface,
+                            extra: <String, dynamic>{
+                              'patientId': patient.id,
+                              'patientName': patient.name,
+                            },
                           );
                         },
                         onTap: () {
