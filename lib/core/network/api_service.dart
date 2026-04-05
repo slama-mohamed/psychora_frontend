@@ -116,6 +116,33 @@ class ApiService {
 
     return response;
   }
+
+  Future<Response<dynamic>> resetPassword({
+    required String newPassword,
+    required String confirmPassword,
+    String? email,
+    String? token,
+    String path = EndPointUrl.resetPassword,
+  }) async {
+    final Map<String, dynamic> data = <String, dynamic>{
+      'newPassword': newPassword,
+      'confirmPassword': confirmPassword,
+    };
+
+    if (email != null && email.isNotEmpty) {
+      data['email'] = email;
+    }
+
+    if (token != null && token.isNotEmpty) {
+      data['token'] = token;
+    }
+
+    return _dio.post<dynamic>(
+      path,
+      data: data,
+    );
+  }
+  
   
   
   

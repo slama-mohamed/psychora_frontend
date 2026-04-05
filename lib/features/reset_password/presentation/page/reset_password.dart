@@ -4,7 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:psychora/features/reset_password/presentation/widget/resetpasswordform.dart';
 
 class ResetPassword extends StatelessWidget {
-  const ResetPassword({super.key});
+  final String? email;
+  final String? token;
+
+  const ResetPassword({super.key, this.email, this.token});
 
   @override
   Widget build(BuildContext context) {
@@ -68,7 +71,10 @@ class ResetPassword extends StatelessWidget {
           ),
           // Main content
           SafeArea(
-            child: Resetpasswordform(),
+            child: Resetpasswordform(
+              email: email,
+              token: token,
+            ),
           ),
         ],
       ),

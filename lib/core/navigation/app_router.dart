@@ -30,7 +30,7 @@ class AppRouter {
   static const String editProfilePage = '/editprofile';
 
   static final GoRouter router = GoRouter(
-    initialLocation: chatbotinterface ,
+    initialLocation: forgotPassword,
     routes: [
       GoRoute(
         path: splash,
@@ -79,7 +79,10 @@ class AppRouter {
       GoRoute(
         path: resetpassword,
         name: RouteName.resetpassword,
-        builder: (context, state) => const ResetPassword(),
+        builder: (context, state) => ResetPassword(
+          email: state.uri.queryParameters['email'],
+          token: state.uri.queryParameters['token'],
+        ),
       ),
       GoRoute(
         path: patientdashboardpage,

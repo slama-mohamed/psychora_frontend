@@ -1,11 +1,16 @@
 import 'package:flutter/material.dart';
 import 'package:psychora/core/constants/assets_constant.dart';
+import 'package:psychora/core/network/api_service.dart';
 import 'package:psychora/features/reset_password/presentation/widget/password_field.dart';
 import 'package:psychora/features/reset_password/presentation/widget/confirm_password_field.dart';
 import 'package:psychora/features/reset_password/presentation/widget/reset_button.dart';
+import 'package:psychora/features/reset_password/presentation/function/handle_login_navigation.dart';
 
 class Resetpasswordform extends StatefulWidget {
-  const Resetpasswordform({super.key});
+  final String? email;
+  final String? token;
+
+  const Resetpasswordform({super.key, this.email, this.token});
 
   @override
   State<Resetpasswordform> createState() => _ResetpasswordformState();
@@ -15,6 +20,8 @@ class _ResetpasswordformState extends State<Resetpasswordform> {
   late final TextEditingController _passwordController;
   late final TextEditingController _confirmPasswordController;
   final _formKey = GlobalKey<FormState>();
+  final ApiService _apiService = ApiService();
+  bool _isSubmitting = false;
 
   @override
   void initState() {
@@ -28,6 +35,57 @@ class _ResetpasswordformState extends State<Resetpasswordform> {
     _passwordController.dispose();
     _confirmPasswordController.dispose();
     super.dispose();
+  }
+
+  Future<void> _submitResetPassword() async {
+    if (_isSubmitting) return;
+
+    final FormState? formState = _formKey.currentState;
+    if (formState == null || !formState.validate()) {
+      return;
+    }
+
+    setState(() {
+      _isSubmitting = true;
+    });
+
+    try {
+      await _apiService.resetPassword(
+        newPassword: _passwordController.text.trim(),
+        confirmPassword: _confirmPasswordController.text.trim(),
+        email: widget.email,
+        token: widget.token,
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Password updated successfully.'),
+          backgroundColor: Color(0xFF3D9970),
+        ),
+      );
+      handleLoginNavigation(context);
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(error.toString().replaceFirst('Exception: ', '')),
+          backgroundColor: Colors.red,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSubmitting = false;
+        });
+      }
+    }
   }
 
   @override
@@ -151,7 +209,10 @@ class _ResetpasswordformState extends State<Resetpasswordform> {
                       passwordController: _passwordController,
                     ),
                     const SizedBox(height: 28),
-                    ResetButton(formkey: _formKey),
+                    ResetButton(
+                      isLoading: _isSubmitting,
+                      onPressed: _submitResetPassword,
+                    ),
                   ],
                 ),
               ),

@@ -36,7 +36,7 @@ class ChatServices {
       throw Exception(_extractApiError(error));
     }
   }
-
+  
   String? _extractReply(dynamic payload) {
     if (payload is String && payload.trim().isNotEmpty) {
       return payload;
