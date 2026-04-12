@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psychora/core/constants/route_name.dart';
+import 'package:psychora/core/network/api_service.dart';
 import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_notes_store.dart';
 import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/barre_de_recherche.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/header_text.dart';
@@ -19,6 +21,8 @@ class Patientdashboardform extends StatefulWidget {
 class _PatientdashboardformState extends State<Patientdashboardform> {
   late TextEditingController _searchController;
   final PatientStore _patientStore = PatientStore();
+  final PatientNotesStore _patientNotesStore = PatientNotesStore();
+  final ApiService _apiService = ApiService();
   late List<PatientModel> _allPatients;
   late List<PatientModel> _filteredPatients;
 
@@ -77,7 +81,24 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
       return;
     }
 
-    _patientStore.removePatientById(patient.id);
+    try {
+      await _apiService.deletePatient(patientId: patient.id);
+      _patientStore.removePatientById(patient.id);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Echec de suppression de ${patient.name} sur le serveur.'),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
 
     if (!mounted) {
       return;
@@ -91,6 +112,67 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
         duration: const Duration(seconds: 2),
       ),
     );
+  }
+
+  Future<void> _openPatientNotesEditor(PatientModel patient) async {
+    final TextEditingController noteController = TextEditingController(
+      text: _patientNotesStore.getNote(patient.id),
+    );
+
+    final bool? isSaved = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: Text('Notes - ${patient.name}'),
+          content: TextField(
+            controller: noteController,
+            maxLines: 8,
+            minLines: 5,
+            decoration: const InputDecoration(
+              hintText: 'Ecrire des notes pour ce patient...',
+              border: OutlineInputBorder(),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(context).pop(false),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(context).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF3D9970),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Enregistrer'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (!mounted) {
+      noteController.dispose();
+      return;
+    }
+
+    if (isSaved == true) {
+      _patientNotesStore.saveNote(
+        patientId: patient.id,
+        note: noteController.text,
+      );
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Notes enregistrées pour ${patient.name}.'),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+    }
+
+    noteController.dispose();
   }
 
   @override
@@ -195,6 +277,9 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                         },
                         onDelete: () {
                           _confirmAndDeletePatient(patient);
+                        },
+                        onSummary: () {
+                          _openPatientNotesEditor(patient);
                         },
                       );
                     },

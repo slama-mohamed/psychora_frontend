@@ -2,7 +2,18 @@ import 'package:flutter/material.dart';
 import 'package:psychora/features/profile_page/presentation/widget/infor_card.dart';
 
 class InformationSection extends StatelessWidget {
-  const InformationSection({super.key});
+  const InformationSection({
+    super.key,
+    required this.email,
+    required this.phone,
+    required this.location,
+    required this.specialization,
+  });
+
+  final String email;
+  final String phone;
+  final String location;
+  final String specialization;
 
   @override
   Widget build(BuildContext context) {
@@ -24,25 +35,25 @@ class InformationSection extends StatelessWidget {
           InfoCard(
             icon: Icons.email_outlined,
             label: 'Email',
-            value: 'dr.ahmed@psychora.com',
+            value: email,
           ),
           const SizedBox(height: 12),
           InfoCard(
             icon: Icons.phone_outlined,
             label: 'Phone',
-            value: '+216 20 123 456',
+            value: phone,
           ),
           const SizedBox(height: 12),
           InfoCard(
             icon: Icons.location_on_outlined,
             label: 'Location',
-            value: 'Tunis, Tunisia',
+            value: location,
           ),
           const SizedBox(height: 12),
           InfoCard(
             icon: Icons.business_outlined,
             label: 'Specialization',
-            value: 'Clinical Psychiatry',
+            value: specialization,
           ),
         ],
       ),

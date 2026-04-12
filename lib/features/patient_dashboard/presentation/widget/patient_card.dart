@@ -3,7 +3,7 @@ import 'package:flutter/material.dart';
 class PatientCard extends StatelessWidget {
   final String patientName;
   final String patientId;
-  final String age;
+  final int age;
   final String condition;
   final String lastSeen;
   final int sessionsCount;

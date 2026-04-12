@@ -33,6 +33,11 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
   void _submit() {
     if (!_formKey.currentState!.validate()) return;
 
+    final int? parsedAge = int.tryParse(_ageController.text.trim());
+    if (parsedAge == null) {
+      return;
+    }
+
     setState(() {
       _isSubmitting = true;
     });
@@ -42,7 +47,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
           ? 'P${DateTime.now().millisecondsSinceEpoch % 100000}'
           : _idController.text.trim(),
       name: _nameController.text.trim(),
-      age: _ageController.text.trim(),
+        age: parsedAge,
       condition: _conditionController.text.trim(),
       lastSeen: _lastSeenController.text.trim(),
       sessionsCount: int.tryParse(_sessionsController.text.trim()) ?? 0,
@@ -125,11 +130,14 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _ageController,
-                decoration: _fieldDecoration('Âge', 'Ex: 29 ans'),
-                keyboardType: TextInputType.text,
+                decoration: _fieldDecoration('Âge', 'Ex: 29'),
+                keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'L\'âge est requis';
+                  }
+                  if (int.tryParse(value.trim()) == null) {
+                    return 'Saisir un âge valide';
                   }
                   return null;
                 },

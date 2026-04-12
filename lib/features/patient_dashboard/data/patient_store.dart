@@ -34,7 +34,7 @@ class PatientStore {
     PatientModel(
       id: 'P001',
       name: 'Mohamed Slama',
-      age: '28 years',
+      age: 28,
       condition: 'Major Depressive Disorder',
       lastSeen: '1 week ago',
       sessionsCount: 8,
@@ -42,7 +42,7 @@ class PatientStore {
     PatientModel(
       id: 'P002',
       name: 'Nour Mnif',
-      age: '22 years',
+      age: 22,
       condition: 'Generalized Anxiety Disorder',
       lastSeen: '3 days ago',
       sessionsCount: 5,
@@ -50,7 +50,7 @@ class PatientStore {
     PatientModel(
       id: 'P003',
       name: 'Ilef Boualleg',
-      age: '26 years',
+      age: 26,
       condition: 'PTSD',
       lastSeen: '5 days ago',
       sessionsCount: 6,
@@ -58,7 +58,7 @@ class PatientStore {
     PatientModel(
       id: 'P004',
       name: 'Amira Mohamed',
-      age: '30 years',
+      age: 30,
       condition: 'Sleep Disorder',
       lastSeen: '2 days ago',
       sessionsCount: 9,
@@ -66,7 +66,7 @@ class PatientStore {
     PatientModel(
       id: 'P005',
       name: 'Ali Ibrahim',
-      age: '35 years',
+      age: 35,
       condition: 'Stress Management',
       lastSeen: '1 month ago',
       sessionsCount: 15,

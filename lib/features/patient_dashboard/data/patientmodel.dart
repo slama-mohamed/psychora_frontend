@@ -1,7 +1,7 @@
 class PatientModel {
   final String id;
   final String name;
-  final String age;
+  final int age;
   final String condition;
   final String lastSeen;
   final int sessionsCount;

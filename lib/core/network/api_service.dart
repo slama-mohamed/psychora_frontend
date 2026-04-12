@@ -154,6 +154,61 @@ class ApiService {
       data: data,
     );
   }
+
+  Future<Response<dynamic>> addPatient({
+    String? id,
+    required String name,
+    required int age,
+    required String condition,
+    required String lastSeen,
+    required int sessionsCount,
+    String path = EndPointUrl.addPatient,
+  }) async {
+    final Map<String, dynamic> data = <String, dynamic>{
+      'name': name,
+      'age': age,
+      'condition': condition,
+      'lastSeen': lastSeen,
+      'sessionsCount': sessionsCount,
+    };
+
+    if (id != null && id.isNotEmpty) {
+      data['id'] = id;
+    }
+
+    return _dio.post<dynamic>(
+      path,
+      data: data,
+    );
+  }
+
+  Future<Response<dynamic>> deletePatient({
+    required String patientId,
+    String path = EndPointUrl.addPatient,
+  }) async {
+    return _dio.delete<dynamic>(
+      '$path/$patientId',
+    );
+  }
+
+  Future<Map<String, dynamic>> getCurrentUserProfile({
+    String path = EndPointUrl.currentUser,
+  }) async {
+    final Response<dynamic> response = await _dio.get<dynamic>(path);
+    final dynamic payload = response.data;
+
+    if (payload is! Map<String, dynamic>) {
+      return <String, dynamic>{};
+    }
+
+    final dynamic nestedData = payload['data'] ?? payload['user'] ?? payload['profile'];
+    if (nestedData is Map<String, dynamic>) {
+      return nestedData;
+    }
+
+    return payload;
+  }
+  
   
   
   

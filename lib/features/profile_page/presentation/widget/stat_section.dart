@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 import 'package:psychora/features/profile_page/presentation/widget/stat_card.dart';
 
 class StatSection extends StatelessWidget {
-  const StatSection({super.key});
+  const StatSection({
+    super.key,
+    required this.patientsCount,
+    required this.sessionsCount,
+    required this.rating,
+  });
+
+  final int patientsCount;
+  final int sessionsCount;
+  final double rating;
 
   @override
   Widget build(BuildContext context) {
@@ -11,15 +20,15 @@ class StatSection extends StatelessWidget {
       child: Row(
         children: [
           Expanded(
-            child: StatCard(number: '247', label: 'Patients'),
+            child: StatCard(number: patientsCount.toString(), label: 'Patients'),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: StatCard(number: '1.2K', label: 'Sessions'),
+            child: StatCard(number: sessionsCount.toString(), label: 'Sessions'),
           ),
           const SizedBox(width: 12),
           Expanded(
-            child: StatCard(number: '4.8', label: 'Rating'),
+            child: StatCard(number: rating.toStringAsFixed(1), label: 'Rating'),
           ),
         ],
       ),
