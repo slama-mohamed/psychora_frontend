@@ -243,6 +243,34 @@ class ApiService {
     return getCurrentUserData(path: path);
   }
 
+  Future<Response<dynamic>> updateCurrentUserProfile({
+    required String fullName,
+    required String email,
+    required String phone,
+    required String location,
+    required String specialty,
+    required String hospital,
+    required int yearsOfExperience,
+    required String bio,
+    String path = EndPointUrl.currentUser,
+  }) {
+    final Map<String, dynamic> data = <String, dynamic>{
+      'fullName': fullName,
+      'email': email,
+      'phone': phone,
+      'location': location,
+      'specialty': specialty,
+      'hospital': hospital,
+      'yearsOfExperience': yearsOfExperience,
+      'bio': bio,
+    };
+
+    return _dio.put<dynamic>(
+      path,
+      data: data,
+    );
+  }
+
   Map<String, dynamic> _mergeUserPayload(Map<String, dynamic> payload) {
     final Map<String, dynamic> merged = Map<String, dynamic>.from(payload);
 

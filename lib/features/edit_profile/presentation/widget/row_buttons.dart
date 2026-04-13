@@ -1,10 +1,16 @@
 import 'package:flutter/material.dart';
-import 'package:psychora/features/edit_profile/presentation/function/handleSave.dart';
 
 class RowButtons extends StatelessWidget {
-  const RowButtons({super.key, required this.formKey});
+  const RowButtons({
+    super.key,
+    required this.formKey,
+    required this.onSave,
+    this.isSaving = false,
+  });
 
   final GlobalKey<FormState> formKey;
+  final Future<void> Function() onSave;
+  final bool isSaving;
 
   @override
   Widget build(BuildContext context) {
@@ -18,7 +24,7 @@ class RowButtons extends StatelessWidget {
             children: [
               _CancelButton(onPressed: () => Navigator.of(context).maybePop()),
               const SizedBox(height: 10),
-              _SaveButton(onPressed: () => handleSave(context, formKey)),
+              _SaveButton(onPressed: isSaving ? null : onSave, isSaving: isSaving),
             ],
           );
         }
@@ -32,7 +38,7 @@ class RowButtons extends StatelessWidget {
             ),
             const SizedBox(width: 12),
             Expanded(
-              child: _SaveButton(onPressed: () => handleSave(context, formKey)),
+              child: _SaveButton(onPressed: isSaving ? null : onSave, isSaving: isSaving),
             ),
           ],
         );
@@ -65,9 +71,10 @@ class _CancelButton extends StatelessWidget {
 }
 
 class _SaveButton extends StatelessWidget {
-  const _SaveButton({required this.onPressed});
+  const _SaveButton({required this.onPressed, required this.isSaving});
 
-  final VoidCallback onPressed;
+  final Future<void> Function()? onPressed;
+  final bool isSaving;
 
   @override
   Widget build(BuildContext context) {
@@ -79,24 +86,33 @@ class _SaveButton extends StatelessWidget {
         shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
         elevation: 0,
       ),
-      child: const FittedBox(
-        fit: BoxFit.scaleDown,
-        child: Row(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            Icon(Icons.check_rounded, color: Colors.white),
-            SizedBox(width: 8),
-            Text(
-              'Save Changes',
-              style: TextStyle(
+      child: isSaving
+          ? const SizedBox(
+              width: 20,
+              height: 20,
+              child: CircularProgressIndicator(
+                strokeWidth: 2,
                 color: Colors.white,
-                fontWeight: FontWeight.w700,
-                fontSize: 15,
+              ),
+            )
+          : const FittedBox(
+              fit: BoxFit.scaleDown,
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.check_rounded, color: Colors.white),
+                  SizedBox(width: 8),
+                  Text(
+                    'Save Changes',
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontWeight: FontWeight.w700,
+                      fontSize: 15,
+                    ),
+                  ),
+                ],
               ),
             ),
-          ],
-        ),
-      ),
     );
   }
 }

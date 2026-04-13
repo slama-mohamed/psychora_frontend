@@ -27,6 +27,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
   final _experienceController = TextEditingController();
   final _bioController = TextEditingController();
   late Future<void> _loadUserFuture;
+  bool _isSaving = false;
 
   @override
   void initState() {
@@ -72,6 +73,70 @@ class _EditProfileFormState extends State<EditProfileForm> {
       return 'This field is required';
     }
     return null;
+  }
+
+  Future<void> _handleSaveProfile() async {
+    if (!(_formKey.currentState?.validate() ?? false)) {
+      return;
+    }
+
+    final int? yearsOfExperience = int.tryParse(_experienceController.text.trim());
+    if (yearsOfExperience == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Years of experience must be a valid number.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return;
+    }
+
+    setState(() {
+      _isSaving = true;
+    });
+
+    try {
+      await _apiService.updateCurrentUserProfile(
+        fullName: _fullNameController.text.trim(),
+        email: _emailController.text.trim(),
+        phone: _phoneController.text.trim(),
+        location: _locationController.text.trim(),
+        specialty: _specialityController.text.trim(),
+        hospital: _hospitalController.text.trim(),
+        yearsOfExperience: yearsOfExperience,
+        bio: _bioController.text.trim(),
+      );
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Profile updated successfully'),
+          backgroundColor: Color(0xFF2D7A5C),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      Navigator.of(context).maybePop();
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Failed to update profile on server.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _isSaving = false;
+        });
+      }
+    }
   }
 
   @override
@@ -365,7 +430,11 @@ class _EditProfileFormState extends State<EditProfileForm> {
                                     ),
                                   ),
                                   const SizedBox(height: 24),
-                                  RowButtons(formKey: _formKey),
+                                  RowButtons(
+                                    formKey: _formKey,
+                                    onSave: _handleSaveProfile,
+                                    isSaving: _isSaving,
+                                  ),
                                 ],
                               ),
                             ),
