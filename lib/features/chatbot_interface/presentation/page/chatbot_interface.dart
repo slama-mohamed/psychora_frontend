@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:psychora/features/chatbot_interface/data/chat_conversation_store.dart';
+import 'package:psychora/features/chatbot_interface/presentation/function/chatservices.dart';
 import 'package:psychora/features/chatbot_interface/presentation/widget/chatinterface_form.dart';
 
 class ChatbotInterface extends StatefulWidget {
@@ -30,6 +31,12 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
     setState(() {
       _conversationViewVersion++;
     });
+
+    if (widget.patientId != null && widget.patientId!.trim().isNotEmpty) {
+      ChatServices()
+          .clearConversation(patientId: widget.patientId!.trim())
+          .catchError((_) {});
+    }
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(

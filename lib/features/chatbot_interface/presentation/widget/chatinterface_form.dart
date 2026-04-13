@@ -25,6 +25,7 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
   final ChatConversationStore _chatConversationStore = ChatConversationStore();
   final List<ChatMessage> messages = [];
   bool _isSending = false;
+  bool _isLoadingConversation = true;
 
   String get _conversationKey =>
       (widget.patientId != null && widget.patientId!.trim().isNotEmpty)
@@ -43,9 +44,42 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
     super.initState();
     _messageController = TextEditingController();
     _chatServices = ChatServices();
+    _loadConversation();
+  }
 
+  @override
+  void dispose() {
+    _messageController.dispose();
+    super.dispose();
+  }
+
+  Future<void> _loadConversation() async {
     final List<Map<String, dynamic>> storedMessages =
         _chatConversationStore.getConversation(_conversationKey);
+
+    if (widget.patientId != null && widget.patientId!.trim().isNotEmpty) {
+      try {
+        final List<Map<String, dynamic>> backendMessages =
+            await _chatServices.loadConversation(patientId: widget.patientId!.trim());
+
+        if (!mounted) {
+          return;
+        }
+
+        if (backendMessages.isNotEmpty) {
+          messages
+            ..clear()
+            ..addAll(_fromStorePayload(backendMessages));
+          _persistConversation();
+          setState(() {
+            _isLoadingConversation = false;
+          });
+          return;
+        }
+      } catch (_) {
+        // Fall back to local cache when backend history is unavailable.
+      }
+    }
 
     if (storedMessages.isEmpty) {
       messages.add(
@@ -56,16 +90,15 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
         ),
       );
       _persistConversation();
-      return;
+    } else {
+      messages.addAll(_fromStorePayload(storedMessages));
     }
 
-    messages.addAll(_fromStorePayload(storedMessages));
-  }
-
-  @override
-  void dispose() {
-    _messageController.dispose();
-    super.dispose();
+    if (mounted) {
+      setState(() {
+        _isLoadingConversation = false;
+      });
+    }
   }
 
   Future<void> _sendMessage() async {
@@ -156,8 +189,21 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
         .toList();
   }
 
-  void _persistConversation() {
+  Future<void> _persistConversation() async {
     _chatConversationStore.saveConversation(_conversationKey, _buildHistory());
+
+    if (widget.patientId == null || widget.patientId!.trim().isEmpty) {
+      return;
+    }
+
+    try {
+      await _chatServices.saveConversation(
+        patientId: widget.patientId!.trim(),
+        history: _buildHistory(),
+      );
+    } catch (_) {
+      // Keep the local cache even if the backend write fails.
+    }
   }
 
   @override
@@ -165,6 +211,13 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
+        if (_isLoadingConversation)
+          const LinearProgressIndicator(
+            minHeight: 2,
+            color: Color(0xFF3D9970),
+            backgroundColor: Colors.transparent,
+          ),
+        if (_isLoadingConversation) const SizedBox(height: 12),
         // Messages area
         Expanded(
           child: messages.isEmpty
@@ -206,7 +259,7 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
           onSend: () {
             _sendMessage();
           },
-          enabled: !_isSending,
+          enabled: !_isSending && !_isLoadingConversation,
           isLoading: _isSending,
         ),
         const SizedBox(height: 8),

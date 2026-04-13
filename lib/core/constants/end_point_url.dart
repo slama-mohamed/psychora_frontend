@@ -8,4 +8,5 @@ class EndPointUrl {
   static const String currentUser = '/api/psy/users/me';
   static const String addPatient = '/api/psy/patients';
   static const String chatbotMessage = 'api/chatbot/message';
+  static const String patientConversation = '/api/psy/conversations';
 }

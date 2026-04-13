@@ -224,6 +224,16 @@ class ApiService {
     );
   }
 
+  Future<List<Map<String, dynamic>>> getPatientConversation({
+    required String patientId,
+    String path = EndPointUrl.patientConversation,
+  }) async {
+    final Response<dynamic> response = await _dio.get<dynamic>(
+      '$path/$patientId',
+    );
+    return _extractConversationRows(response.data);
+  }
+
   Future<Map<String, dynamic>> getCurrentUserData({
     String path = EndPointUrl.currentUser,
   }) async {
@@ -315,6 +325,31 @@ class ApiService {
           _extractPatientRows(payload['result']);
       if (resultRows.isNotEmpty) {
         return resultRows;
+      }
+
+      return <Map<String, dynamic>>[payload];
+    }
+
+    return <Map<String, dynamic>>[];
+  }
+
+  List<Map<String, dynamic>> _extractConversationRows(dynamic payload) {
+    if (payload is List) {
+      return payload.whereType<Map<String, dynamic>>().toList();
+    }
+
+    if (payload is Map<String, dynamic>) {
+      final dynamic messages = payload['messages'] ?? payload['history'];
+      if (messages is List) {
+        return messages.whereType<Map<String, dynamic>>().toList();
+      }
+
+      final dynamic data = payload['data'];
+      if (data is Map<String, dynamic>) {
+        final dynamic nestedMessages = data['messages'] ?? data['history'];
+        if (nestedMessages is List) {
+          return nestedMessages.whereType<Map<String, dynamic>>().toList();
+        }
       }
 
       return <Map<String, dynamic>>[payload];

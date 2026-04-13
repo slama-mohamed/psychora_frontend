@@ -18,7 +18,7 @@ class ChatServices {
     List<Map<String, dynamic>> history = const <Map<String, dynamic>>[],
   }) async {
     try {
-      final Response<dynamic> response = await _apiService.dio.post<dynamic>(
+      final response = await _apiService.dio.post<dynamic>(
         EndPointUrl.chatbotMessage,
         data: <String, dynamic>{
           'message': userMessage,
@@ -34,6 +34,45 @@ class ChatServices {
       return parsedReply;
     } on DioException catch (error) {
       throw Exception(_extractApiError(error));
+    }
+  }
+
+  Future<List<Map<String, dynamic>>> loadConversation({
+    required String patientId,
+  }) async {
+    try {
+      return await _apiService.getPatientConversation(patientId: patientId);
+    } catch (error) {
+      throw Exception(error.toString());
+    }
+  }
+
+  Future<void> saveConversation({
+    required String patientId,
+    required List<Map<String, dynamic>> history,
+  }) async {
+    try {
+      await _apiService.dio.post<dynamic>(
+        EndPointUrl.patientConversation,
+        data: <String, dynamic>{
+          'patientId': patientId,
+          'messages': history,
+        },
+      );
+    } catch (error) {
+      throw Exception(error.toString());
+    }
+  }
+
+  Future<void> clearConversation({
+    required String patientId,
+  }) async {
+    try {
+      await _apiService.dio.delete<dynamic>(
+        '${EndPointUrl.patientConversation}/$patientId',
+      );
+    } catch (error) {
+      throw Exception(error.toString());
     }
   }
   
@@ -108,6 +147,7 @@ class ChatServices {
       }
     }
 
-    return 'Erreur réseau lors de la communication avec le chatbot.';
+    return 'Erreur reseau lors de la communication avec le chatbot.';
   }
+
 }
