@@ -35,6 +35,29 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     _filteredPatients = _allPatients;
     _searchController.addListener(_filterPatients);
     _patientStore.patientsNotifier.addListener(_handlePatientsChanged);
+    _loadPatientsFromServer();
+  }
+
+  Future<void> _loadPatientsFromServer() async {
+    try {
+      final List<PatientModel> patients = await _apiService.getPatients();
+      if (!mounted) {
+        return;
+      }
+      _patientStore.setPatients(patients);
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Impossible de charger les patients depuis la base de données.'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
   }
 
   void _handlePatientsChanged() {

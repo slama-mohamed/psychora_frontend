@@ -15,6 +15,10 @@ class PatientStore {
 
   List<PatientModel> get currentPatients => List<PatientModel>.of(patientsNotifier.value);
 
+  void setPatients(List<PatientModel> patients) {
+    patientsNotifier.value = List<PatientModel>.of(patients);
+  }
+
   void addPatient(PatientModel patient) {
     final List<PatientModel> updatedPatients = <PatientModel>[
       patient,

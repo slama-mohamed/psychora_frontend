@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:psychora/core/constants/end_point_url.dart';
+import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
 
 import 'interceptors/auth_interceptor.dart';
 import 'interceptors/unauthorized_interceptor.dart';
@@ -177,6 +178,20 @@ class ApiService {
     );
   }
 
+  Future<List<PatientModel>> getPatients({
+    String path = EndPointUrl.addPatient,
+  }) async {
+    final Response<dynamic> response = await _dio.get<dynamic>(path);
+    final List<Map<String, dynamic>> rows = _extractPatientRows(response.data);
+
+    return rows
+        .map((Map<String, dynamic> row) => PatientModel.fromMap(row))
+        .where((PatientModel patient) {
+          return patient.id.isNotEmpty || patient.name.isNotEmpty;
+        })
+        .toList();
+  }
+
   Future<Response<dynamic>> updatePatient({
     required String patientId,
     required String name,
@@ -248,6 +263,36 @@ class ApiService {
     if (value is Map<String, dynamic>) {
       target.addAll(value);
     }
+  }
+
+  List<Map<String, dynamic>> _extractPatientRows(dynamic payload) {
+    if (payload is List) {
+      return payload.whereType<Map<String, dynamic>>().toList();
+    }
+
+    if (payload is Map<String, dynamic>) {
+      final List<Map<String, dynamic>> directRows =
+          _extractPatientRows(payload['patients']);
+      if (directRows.isNotEmpty) {
+        return directRows;
+      }
+
+      final List<Map<String, dynamic>> dataRows =
+          _extractPatientRows(payload['data']);
+      if (dataRows.isNotEmpty) {
+        return dataRows;
+      }
+
+      final List<Map<String, dynamic>> resultRows =
+          _extractPatientRows(payload['result']);
+      if (resultRows.isNotEmpty) {
+        return resultRows;
+      }
+
+      return <Map<String, dynamic>>[payload];
+    }
+
+    return <Map<String, dynamic>>[];
   }
   
   

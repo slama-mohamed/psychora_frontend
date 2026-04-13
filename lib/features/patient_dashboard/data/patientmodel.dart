@@ -32,4 +32,48 @@ class PatientModel {
       sessionsCount: sessionsCount ?? this.sessionsCount,
     );
   }
+
+  factory PatientModel.fromMap(Map<String, dynamic> map) {
+    return PatientModel(
+      id: _readString(map, <String>['id', '_id', 'patientId']),
+      name: _readString(map, <String>['name', 'fullName', 'patientName']),
+      age: _readInt(map, <String>['age']),
+      condition: _readString(map, <String>['condition', 'diagnosis', 'state']),
+      lastSeen: _readString(map, <String>['lastSeen', 'lastVisit']),
+      sessionsCount: _readInt(map, <String>['sessionsCount', 'sessions']),
+    );
+  }
+
+  static String _readString(Map<String, dynamic> map, List<String> keys) {
+    for (final String key in keys) {
+      final dynamic value = map[key];
+      if (value == null) {
+        continue;
+      }
+      final String normalized = value.toString().trim();
+      if (normalized.isNotEmpty) {
+        return normalized;
+      }
+    }
+    return '';
+  }
+
+  static int _readInt(Map<String, dynamic> map, List<String> keys) {
+    for (final String key in keys) {
+      final dynamic value = map[key];
+      if (value is int) {
+        return value;
+      }
+      if (value is num) {
+        return value.toInt();
+      }
+      if (value is String) {
+        final int? parsed = int.tryParse(value.trim());
+        if (parsed != null) {
+          return parsed;
+        }
+      }
+    }
+    return 0;
+  }
 }
