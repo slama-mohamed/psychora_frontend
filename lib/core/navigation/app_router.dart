@@ -30,7 +30,7 @@ class AppRouter {
   static const String editProfilePage = '/editprofile';
 
   static final GoRouter router = GoRouter(
-    initialLocation: login,
+    initialLocation: patientdashboardpage,
     routes: [
       GoRoute(
         path: splash,

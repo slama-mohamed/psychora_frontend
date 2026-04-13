@@ -6,6 +6,10 @@ class UserProfileModel {
   final String phone;
   final String location;
   final String specialization;
+  final String hospital;
+  final String bio;
+  final String idCard;
+  final int yearsOfExperience;
   final int patientsCount;
   final int sessionsCount;
   final double rating;
@@ -18,6 +22,10 @@ class UserProfileModel {
     required this.phone,
     required this.location,
     required this.specialization,
+    required this.hospital,
+    required this.bio,
+    required this.idCard,
+    required this.yearsOfExperience,
     required this.patientsCount,
     required this.sessionsCount,
     required this.rating,
@@ -63,6 +71,26 @@ class UserProfileModel {
         'specialty',
         'domain',
       ], fallback: 'N/A'),
+      hospital: _readString(data, <String>[
+        'hospital',
+        'clinic',
+        'workplace',
+      ], fallback: ''),
+      bio: _readString(data, <String>[
+        'bio',
+        'about',
+        'description',
+      ], fallback: ''),
+      idCard: _readString(data, <String>[
+        'idCard',
+        'idNumber',
+        'cin',
+      ], fallback: ''),
+      yearsOfExperience: _readInt(data, <String>[
+        'yearsOfExperience',
+        'experienceYears',
+        'experience',
+      ], fallback: 0),
       patientsCount: _readInt(data, <String>[
         'patientsCount',
         'totalPatients',

@@ -2,7 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
 
 class AddPatientDialog extends StatefulWidget {
-  const AddPatientDialog({super.key});
+  final PatientModel? initialPatient;
+
+  const AddPatientDialog({super.key, this.initialPatient});
+
+  bool get isEditing => initialPatient != null;
 
   @override
   State<AddPatientDialog> createState() => _AddPatientDialogState();
@@ -10,18 +14,33 @@ class AddPatientDialog extends StatefulWidget {
 
 class _AddPatientDialogState extends State<AddPatientDialog> {
   final _formKey = GlobalKey<FormState>();
-  final _idController = TextEditingController();
-  final _nameController = TextEditingController();
-  final _ageController = TextEditingController();
-  final _conditionController = TextEditingController();
-  final _lastSeenController = TextEditingController(text: 'Aujourd\'hui');
-  final _sessionsController = TextEditingController(text: '0');
+  late final TextEditingController _nameController;
+  late final TextEditingController _ageController;
+  late final TextEditingController _conditionController;
+  late final TextEditingController _lastSeenController;
+  late final TextEditingController _sessionsController;
 
   bool _isSubmitting = false;
 
   @override
+  void initState() {
+    super.initState();
+    final PatientModel? patient = widget.initialPatient;
+    _nameController = TextEditingController(text: patient?.name ?? '');
+    _ageController = TextEditingController(
+      text: patient?.age.toString() ?? '',
+    );
+    _conditionController = TextEditingController(text: patient?.condition ?? '');
+    _lastSeenController = TextEditingController(
+      text: patient?.lastSeen ?? 'Aujourd\'hui',
+    );
+    _sessionsController = TextEditingController(
+      text: patient?.sessionsCount.toString() ?? '0',
+    );
+  }
+
+  @override
   void dispose() {
-    _idController.dispose();
     _nameController.dispose();
     _ageController.dispose();
     _conditionController.dispose();
@@ -43,11 +62,9 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
     });
 
     final newPatient = PatientModel(
-      id: _idController.text.trim().isEmpty
-          ? 'P${DateTime.now().millisecondsSinceEpoch % 100000}'
-          : _idController.text.trim(),
+      id: widget.initialPatient?.id ?? '',
       name: _nameController.text.trim(),
-        age: parsedAge,
+      age: parsedAge,
       condition: _conditionController.text.trim(),
       lastSeen: _lastSeenController.text.trim(),
       sessionsCount: int.tryParse(_sessionsController.text.trim()) ?? 0,
@@ -57,7 +74,11 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
     messenger?.hideCurrentSnackBar();
     messenger?.showSnackBar(
       SnackBar(
-        content: Text('Patient ajouté : ${newPatient.name}'),
+        content: Text(
+          widget.isEditing
+              ? 'Patient mis à jour : ${newPatient.name}'
+              : 'Patient ajouté : ${newPatient.name}',
+        ),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
         margin: const EdgeInsets.all(12),
@@ -85,13 +106,18 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(18)),
       titlePadding: const EdgeInsets.fromLTRB(20, 20, 20, 0),
       title: Row(
-        children: const [
-          Icon(Icons.person_add_alt_1_rounded, color: Color(0xFF1F2937)),
-          SizedBox(width: 10),
+        children: [
+          Icon(
+            widget.isEditing
+                ? Icons.edit_note_rounded
+                : Icons.person_add_alt_1_rounded,
+            color: const Color(0xFF1F2937),
+          ),
+          const SizedBox(width: 10),
           Expanded(
             child: Text(
-              'Add New Patient',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
+              widget.isEditing ? 'Update Patient' : 'Add New Patient',
+              style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w700),
             ),
           ),
         ],
@@ -102,18 +128,6 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
           child: Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              TextFormField(
-                controller: _idController,
-                decoration: _fieldDecoration('ID Patient', 'Ex: P007'),
-                textCapitalization: TextCapitalization.characters,
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return null; // id auto-généré si vide
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 12),
               TextFormField(
                 controller: _nameController,
                 decoration: _fieldDecoration(
@@ -213,7 +227,10 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
                     color: Colors.white,
                   ),
                 )
-              : const Text('Add' , style: TextStyle(color: Colors.white),),
+              : Text(
+                  widget.isEditing ? 'Update' : 'Add',
+                  style: const TextStyle(color: Colors.white),
+                ),
         ),
       ],
     );

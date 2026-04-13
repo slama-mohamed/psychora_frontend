@@ -25,7 +25,7 @@ class _ProfilepageFormState extends State<ProfilepageForm> {
   }
 
   Future<UserProfileModel> _loadUserProfile() async {
-    final Map<String, dynamic> payload = await _apiService.getCurrentUserProfile();
+    final Map<String, dynamic> payload = await _apiService.getCurrentUserData();
     return UserProfileModel.fromApi(payload);
   }
 

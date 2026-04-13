@@ -8,6 +8,7 @@ class PatientCard extends StatelessWidget {
   final String lastSeen;
   final int sessionsCount;
   final VoidCallback? onContinueChat;
+  final VoidCallback? onEdit;
   final VoidCallback? onSummary;
   final VoidCallback? onDelete;
   final VoidCallback? onTap;
@@ -21,6 +22,7 @@ class PatientCard extends StatelessWidget {
     required this.lastSeen,
     required this.sessionsCount,
     this.onContinueChat,
+    this.onEdit,
     this.onSummary,
     this.onDelete,
     this.onTap,
@@ -240,6 +242,25 @@ class PatientCard extends StatelessWidget {
                       color: Color(0xFF6B7280),
                     ),
                     tooltip: 'Summary',
+                    padding: EdgeInsets.zero,
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  width: 40,
+                  height: 40,
+                  decoration: BoxDecoration(
+                    color: const Color(0xFFE0F2FE),
+                    borderRadius: BorderRadius.circular(8),
+                  ),
+                  child: IconButton(
+                    onPressed: onEdit,
+                    icon: const Icon(
+                      Icons.edit_outlined,
+                      size: 18,
+                      color: Color(0xFF0284C7),
+                    ),
+                    tooltip: 'Update patient',
                     padding: EdgeInsets.zero,
                   ),
                 ),

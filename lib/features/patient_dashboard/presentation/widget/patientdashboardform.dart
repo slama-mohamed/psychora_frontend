@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psychora/core/constants/route_name.dart';
 import 'package:psychora/core/network/api_service.dart';
+import 'package:psychora/features/home/presentation/widget/add_patient_dialog.dart';
 import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
 import 'package:psychora/features/patient_dashboard/data/patient_notes_store.dart';
 import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
@@ -107,6 +108,57 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
         content: Text('Patient supprimé: ${patient.name}'),
+        behavior: SnackBarBehavior.floating,
+        margin: const EdgeInsets.all(16),
+        duration: const Duration(seconds: 2),
+      ),
+    );
+  }
+
+  Future<void> _confirmAndUpdatePatient(PatientModel patient) async {
+    final PatientModel? updatedPatient = await showDialog<PatientModel>(
+      context: context,
+      barrierDismissible: true,
+      builder: (_) => AddPatientDialog(initialPatient: patient),
+    );
+
+    if (updatedPatient == null) {
+      return;
+    }
+
+    try {
+      await _apiService.updatePatient(
+        patientId: patient.id,
+        name: updatedPatient.name,
+        age: updatedPatient.age,
+        condition: updatedPatient.condition,
+        lastSeen: updatedPatient.lastSeen,
+        sessionsCount: updatedPatient.sessionsCount,
+      );
+      _patientStore.updatePatient(updatedPatient.copyWith(id: patient.id));
+    } catch (_) {
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Echec de modification de ${patient.name} sur le serveur.'),
+          behavior: SnackBarBehavior.floating,
+          margin: const EdgeInsets.all(16),
+          duration: const Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text('Patient mis à jour: ${updatedPatient.name}'),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2),
@@ -262,6 +314,9 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                               'patientName': patient.name,
                             },
                           );
+                        },
+                        onEdit: () {
+                          _confirmAndUpdatePatient(patient);
                         },
                         onTap: () {
                           ScaffoldMessenger.of(context).showSnackBar(

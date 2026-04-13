@@ -19,17 +19,29 @@ class QuickActionController {
       builder: (_) => const AddPatientDialog(),
     );
 
+    PatientModel? createdPatient;
+
     if (result != null) {
       try {
-        await _apiService.addPatient(
-          id: result.id,
+        final response = await _apiService.addPatient(
           name: result.name,
           age: result.age,
           condition: result.condition,
           lastSeen: result.lastSeen,
           sessionsCount: result.sessionsCount,
         );
-        _patientStore.addPatient(result);
+
+        final String patientId = _extractPatientId(response.data);
+        createdPatient = PatientModel(
+          id: patientId,
+          name: result.name,
+          age: result.age,
+          condition: result.condition,
+          lastSeen: result.lastSeen,
+          sessionsCount: result.sessionsCount,
+        );
+
+        _patientStore.addPatient(createdPatient);
       } catch (_) {
         final messenger = ScaffoldMessenger.maybeOf(context);
         messenger?.hideCurrentSnackBar();
@@ -43,7 +55,7 @@ class QuickActionController {
       }
     }
 
-    return result;
+    return createdPatient ?? result;
   }
 
   static void handleNavigateToChat(BuildContext context) {
@@ -54,5 +66,25 @@ class QuickActionController {
     context.goNamed(RouteName.resourcesPage);
   }
 
-  
+  static String _extractPatientId(dynamic responseData) {
+    if (responseData is String && responseData.isNotEmpty) {
+      return responseData;
+    }
+
+    if (responseData is Map<String, dynamic>) {
+      final dynamic directId = responseData['id'] ?? responseData['patientId'];
+      if (directId is String && directId.isNotEmpty) {
+        return directId;
+      }
+
+      for (final String key in <String>['data', 'patient', 'result']) {
+        final String nestedId = _extractPatientId(responseData[key]);
+        if (nestedId.isNotEmpty) {
+          return nestedId;
+        }
+      }
+    }
+
+    throw StateError('Backend response did not include a patient id.');
+  }
 }

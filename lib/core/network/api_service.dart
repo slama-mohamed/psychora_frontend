@@ -156,7 +156,6 @@ class ApiService {
   }
 
   Future<Response<dynamic>> addPatient({
-    String? id,
     required String name,
     required int age,
     required String condition,
@@ -172,12 +171,31 @@ class ApiService {
       'sessionsCount': sessionsCount,
     };
 
-    if (id != null && id.isNotEmpty) {
-      data['id'] = id;
-    }
-
     return _dio.post<dynamic>(
       path,
+      data: data,
+    );
+  }
+
+  Future<Response<dynamic>> updatePatient({
+    required String patientId,
+    required String name,
+    required int age,
+    required String condition,
+    required String lastSeen,
+    required int sessionsCount,
+    String path = EndPointUrl.addPatient,
+  }) async {
+    final Map<String, dynamic> data = <String, dynamic>{
+      'name': name,
+      'age': age,
+      'condition': condition,
+      'lastSeen': lastSeen,
+      'sessionsCount': sessionsCount,
+    };
+
+    return _dio.put<dynamic>(
+      '$path/$patientId',
       data: data,
     );
   }
@@ -191,7 +209,7 @@ class ApiService {
     );
   }
 
-  Future<Map<String, dynamic>> getCurrentUserProfile({
+  Future<Map<String, dynamic>> getCurrentUserData({
     String path = EndPointUrl.currentUser,
   }) async {
     final Response<dynamic> response = await _dio.get<dynamic>(path);
@@ -201,12 +219,35 @@ class ApiService {
       return <String, dynamic>{};
     }
 
-    final dynamic nestedData = payload['data'] ?? payload['user'] ?? payload['profile'];
-    if (nestedData is Map<String, dynamic>) {
-      return nestedData;
+    return _mergeUserPayload(payload);
+  }
+
+  Future<Map<String, dynamic>> getCurrentUserProfile({
+    String path = EndPointUrl.currentUser,
+  }) {
+    return getCurrentUserData(path: path);
+  }
+
+  Map<String, dynamic> _mergeUserPayload(Map<String, dynamic> payload) {
+    final Map<String, dynamic> merged = Map<String, dynamic>.from(payload);
+
+    _mergeIfMap(merged, payload['data']);
+    _mergeIfMap(merged, payload['user']);
+    _mergeIfMap(merged, payload['profile']);
+
+    final dynamic data = payload['data'];
+    if (data is Map<String, dynamic>) {
+      _mergeIfMap(merged, data['user']);
+      _mergeIfMap(merged, data['profile']);
     }
 
-    return payload;
+    return merged;
+  }
+
+  void _mergeIfMap(Map<String, dynamic> target, dynamic value) {
+    if (value is Map<String, dynamic>) {
+      target.addAll(value);
+    }
   }
   
   

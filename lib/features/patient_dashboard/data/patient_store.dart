@@ -23,6 +23,15 @@ class PatientStore {
     patientsNotifier.value = updatedPatients;
   }
 
+  void updatePatient(PatientModel updatedPatient) {
+    final List<PatientModel> updatedPatients = patientsNotifier.value
+        .map((PatientModel patient) {
+          return patient.id == updatedPatient.id ? updatedPatient : patient;
+        })
+        .toList();
+    patientsNotifier.value = updatedPatients;
+  }
+
   void removePatientById(String patientId) {
     final List<PatientModel> updatedPatients = patientsNotifier.value
         .where((PatientModel patient) => patient.id != patientId)
