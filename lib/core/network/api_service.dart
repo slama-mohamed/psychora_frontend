@@ -2,6 +2,7 @@ import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
 import 'package:psychora/core/constants/end_point_url.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_note_model.dart';
 import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
 
 import 'interceptors/auth_interceptor.dart';
@@ -224,6 +225,71 @@ class ApiService {
     );
   }
 
+  Future<Response<dynamic>> savePatientNote({
+    required String patientId,
+    required String note,
+    String path = EndPointUrl.patientNotes,
+  }) async {
+    final Map<String, dynamic> payload = <String, dynamic>{
+      'patientId': patientId,
+      'note': note,
+    };
+
+    try {
+      return await _dio.put<dynamic>(
+        '$path/$patientId',
+        data: payload,
+      );
+    } on DioException catch (error) {
+      if (!_shouldTryFallback(error.response?.statusCode)) {
+        rethrow;
+      }
+    }
+
+    try {
+      return await _dio.put<dynamic>(
+        '${EndPointUrl.addPatient}/$patientId/notes',
+        data: <String, dynamic>{'note': note},
+      );
+    } on DioException catch (error) {
+      if (!_shouldTryFallback(error.response?.statusCode)) {
+        rethrow;
+      }
+    }
+
+    return _dio.post<dynamic>(
+      path,
+      data: payload,
+    );
+  }
+
+  Future<List<PatientNoteModel>> getPatientNotes({
+    String path = EndPointUrl.patientNotes,
+  }) async {
+    try {
+      final Response<dynamic> response = await _dio.get<dynamic>(path);
+      return _extractNoteRows(response.data)
+          .map((Map<String, dynamic> row) => PatientNoteModel.fromMap(row))
+          .where((PatientNoteModel note) {
+        return note.patientId.isNotEmpty && note.note.trim().isNotEmpty;
+      }).toList();
+    } on DioException catch (error) {
+      if (!_shouldTryFallback(error.response?.statusCode)) {
+        rethrow;
+      }
+
+      final Response<dynamic> fallbackResponse = await _dio.get<dynamic>(
+        '${EndPointUrl.addPatient}/notes',
+      );
+
+      return _extractNoteRows(fallbackResponse.data)
+          .map((Map<String, dynamic> row) => PatientNoteModel.fromMap(row))
+          .where((PatientNoteModel note) {
+        return note.patientId.isNotEmpty && note.note.trim().isNotEmpty;
+      }).toList();
+    }
+  }
+
   Future<List<Map<String, dynamic>>> getPatientConversation({
     required String patientId,
     String path = EndPointUrl.patientConversation,
@@ -356,6 +422,34 @@ class ApiService {
     }
 
     return <Map<String, dynamic>>[];
+  }
+
+  List<Map<String, dynamic>> _extractNoteRows(dynamic payload) {
+    if (payload is List) {
+      return payload.whereType<Map<String, dynamic>>().toList();
+    }
+
+    if (payload is Map<String, dynamic>) {
+      for (final String key in <String>[
+        'notes',
+        'data',
+        'result',
+        'rows',
+      ]) {
+        final List<Map<String, dynamic>> rows = _extractNoteRows(payload[key]);
+        if (rows.isNotEmpty) {
+          return rows;
+        }
+      }
+
+      return <Map<String, dynamic>>[payload];
+    }
+
+    return <Map<String, dynamic>>[];
+  }
+
+  bool _shouldTryFallback(int? statusCode) {
+    return statusCode == null || statusCode == 404 || statusCode == 405;
   }
   
   

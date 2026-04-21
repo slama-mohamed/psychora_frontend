@@ -36,6 +36,19 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     _searchController.addListener(_filterPatients);
     _patientStore.patientsNotifier.addListener(_handlePatientsChanged);
     _loadPatientsFromServer();
+    _loadNotesFromServer();
+  }
+
+  Future<void> _loadNotesFromServer() async {
+    try {
+      final notes = await _apiService.getPatientNotes();
+      if (!mounted) {
+        return;
+      }
+      _patientNotesStore.setNotes(notes);
+    } catch (_) {
+      // Keep silent here: notes are secondary content for this page.
+    }
   }
 
   Future<void> _loadPatientsFromServer() async {
@@ -232,9 +245,35 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     }
 
     if (isSaved == true) {
+      final String normalized = noteController.text.trim();
+
+      try {
+        await _apiService.savePatientNote(
+          patientId: patient.id,
+          note: normalized,
+        );
+      } catch (_) {
+        if (!mounted) {
+          noteController.dispose();
+          return;
+        }
+
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Echec de sauvegarde des notes pour ${patient.name}.'),
+            behavior: SnackBarBehavior.floating,
+            margin: const EdgeInsets.all(16),
+            duration: const Duration(seconds: 2),
+          ),
+        );
+        noteController.dispose();
+        return;
+      }
+
       _patientNotesStore.saveNote(
         patientId: patient.id,
-        note: noteController.text,
+        patientName: patient.name,
+        note: normalized,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(

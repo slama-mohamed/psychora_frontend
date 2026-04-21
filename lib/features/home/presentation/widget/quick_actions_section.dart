@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:psychora/core/constants/route_name.dart';
 import 'package:psychora/features/home/presentation/function/quickactioncontroller.dart';
 import 'package:psychora/features/home/presentation/widget/home_form_data.dart';
 import 'package:psychora/features/home/presentation/widget/quickactiontile.dart';
@@ -58,6 +60,12 @@ class QuickActionsSection extends StatelessWidget {
                 if (item.title == 'Resources') {
                   action = () {
                     QuickActionController.handleNavigateToResources(context);
+                  };
+                }
+
+                if (item.title == 'All Notes') {
+                  action = () {
+                    context.pushNamed(RouteName.allNotesPage);
                   };
                 }
                 

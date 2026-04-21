@@ -6,6 +6,7 @@ import 'package:psychora/features/complete_signup_student/presentation/widget/co
 import 'package:psychora/features/edit_profile/presentation/page/edit_profile_page.dart';
 import 'package:psychora/features/forgot_password/presentation/page/forgot_password.dart';
 import 'package:psychora/features/home/presentation/page/home_page.dart';
+import 'package:psychora/features/home/presentation/page/all_notes_page.dart';
 import 'package:psychora/features/login_page/presentation/page/login_page.dart';
 import 'package:psychora/features/patient_dashboard/presentation/page/patient_dashboard_page.dart';
 import 'package:psychora/features/profile_page/presentation/page/profile_page.dart';
@@ -28,6 +29,7 @@ class AppRouter {
   static const String profilepage = '/profilepage';
   static const String resourcesPage = '/resources';
   static const String editProfilePage = '/editprofile';
+  static const String allNotesPage = '/allnotes';
 
   static final GoRouter router = GoRouter(
     initialLocation: home,
@@ -128,6 +130,11 @@ class AppRouter {
         path: editProfilePage,
         name: RouteName.editProfilePage,
         builder: (context, state) => const EditProfilePage(),
+      ),
+      GoRoute(
+        path: allNotesPage,
+        name: RouteName.allNotesPage,
+        builder: (context, state) => const AllNotesPage(),
       ),
     ],
   );

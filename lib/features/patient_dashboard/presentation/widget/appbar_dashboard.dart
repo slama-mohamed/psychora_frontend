@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:psychora/features/patient_dashboard/presentation/function/patientdashboardcontroller.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/actionbuttondashboard.dart';
 
 
@@ -71,13 +72,11 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
         Actionbuttondashboard(
           icon: Icons.add_circle_outline,
           label: 'Ajouter',
-          onPressed: () {},
+          onPressed: () {
+            PatientDashboardController.handleAddPatient(context);
+          },
         ),
-        Actionbuttondashboard(
-          icon: Icons.filter_list_rounded,
-          label: 'Filtrer',
-          onPressed: () {},
-        ),
+       
         const SizedBox(width: 8),
       ],
       centerTitle: false,
