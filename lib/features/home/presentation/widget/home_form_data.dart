@@ -5,24 +5,27 @@ import 'package:psychora/features/home/presentation/widget/recentactivityitem.da
 class HomeFormData {
   HomeFormData._();
 
-  static const List<RecentActivityItem> recentActivities = [
+  static const List<RecentActivityItem> todaySessions = [
     RecentActivityItem(
-      title: 'Eleanor Pena',
-      subtitle: 'Active Chat',
-      timestamp: '2 min ago',
-      color: Color(0xFF3D9970),
+      name: 'Eleanor Pena',
+      diagnosis: 'Anxiety Disorder',
+      time: '10:00',
+      avatarBackgroundColor: Color(0xFFD7F3E8),
+      avatarForegroundColor: Color(0xFF2E8B57),
     ),
     RecentActivityItem(
-      title: 'Cody Fisher',
-      subtitle: 'New Session',
-      timestamp: '15 min ago',
-      color: Color(0xFF60A5FA),
+      name: 'Cody Fisher',
+      diagnosis: 'Depression Follow-up',
+      time: '14:30',
+      avatarBackgroundColor: Color(0xFFDDEBFF),
+      avatarForegroundColor: Color(0xFF3B82F6),
     ),
     RecentActivityItem(
-      title: 'Esther Howard',
-      subtitle: 'Active Chat',
-      timestamp: '1 hour ago',
-      color: Color(0xFFFBBF24),
+      name: 'Esther Howard',
+      diagnosis: 'PTSD Evaluation',
+      time: '16:00',
+      avatarBackgroundColor: Color(0xFFF0E0FF),
+      avatarForegroundColor: Color(0xFFA855F7),
     ),
   ];
 
