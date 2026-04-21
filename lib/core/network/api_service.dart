@@ -300,6 +300,25 @@ class ApiService {
     return _extractConversationRows(response.data);
   }
 
+  Future<List<Map<String, dynamic>>> getPsyConversations({
+    String path = EndPointUrl.patientConversation,
+  }) async {
+    final Response<dynamic> response = await _dio.get<dynamic>(path);
+    return _extractConversationRows(response.data);
+  }
+
+  Future<void> deleteConversationById({
+    required String conversationId,
+    String path = EndPointUrl.patientConversation,
+  }) async {
+    final String normalizedConversationId = conversationId.trim();
+    if (normalizedConversationId.isEmpty) {
+      return;
+    }
+
+    await _dio.delete<dynamic>('$path/$normalizedConversationId');
+  }
+
   Future<Map<String, dynamic>> getCurrentUserData({
     String path = EndPointUrl.currentUser,
   }) async {
@@ -405,6 +424,20 @@ class ApiService {
     }
 
     if (payload is Map<String, dynamic>) {
+      for (final String key in <String>[
+        'conversations',
+        'conversation',
+        'sessions',
+        'chats',
+        'rows',
+        'result',
+      ]) {
+        final List<Map<String, dynamic>> rows = _extractConversationRows(payload[key]);
+        if (rows.isNotEmpty) {
+          return rows;
+        }
+      }
+
       final dynamic messages = payload['messages'] ?? payload['history'];
       if (messages is List) {
         return messages.whereType<Map<String, dynamic>>().toList();

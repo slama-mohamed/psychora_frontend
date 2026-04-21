@@ -57,6 +57,19 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
     final List<Map<String, dynamic>> storedMessages =
         _chatConversationStore.getConversation(_conversationKey);
 
+    if (storedMessages.isNotEmpty) {
+      messages
+        ..clear()
+        ..addAll(_fromStorePayload(storedMessages));
+
+      if (mounted) {
+        setState(() {
+          _isLoadingConversation = false;
+        });
+      }
+      return;
+    }
+
     if (widget.patientId != null && widget.patientId!.trim().isNotEmpty) {
       try {
         final List<Map<String, dynamic>> backendMessages =
@@ -81,18 +94,14 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
       }
     }
 
-    if (storedMessages.isEmpty) {
-      messages.add(
-        ChatMessage(
-          text: _welcomeText,
-          isUser: false,
-          timestamp: 'À l\'instant',
-        ),
-      );
-      _persistConversation();
-    } else {
-      messages.addAll(_fromStorePayload(storedMessages));
-    }
+    messages.add(
+      ChatMessage(
+        text: _welcomeText,
+        isUser: false,
+        timestamp: 'À l\'instant',
+      ),
+    );
+    _persistConversation();
 
     if (mounted) {
       setState(() {

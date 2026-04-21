@@ -47,6 +47,14 @@ class ChatServices {
     }
   }
 
+  Future<List<Map<String, dynamic>>> loadPsyConversations() async {
+    try {
+      return await _apiService.getPsyConversations();
+    } catch (error) {
+      throw Exception(error.toString());
+    }
+  }
+
   Future<void> saveConversation({
     required String patientId,
     required List<Map<String, dynamic>> history,
@@ -74,6 +82,23 @@ class ChatServices {
     } catch (error) {
       throw Exception(error.toString());
     }
+  }
+
+  Future<void> deleteConversationFromDrawer({
+    required String patientId,
+    String? conversationId,
+  }) async {
+    final String normalizedConversationId = (conversationId ?? '').trim();
+
+    if (normalizedConversationId.isEmpty) {
+      throw Exception(
+        'Conversation non supprimable sur le backend: identifiant manquant.',
+      );
+    }
+
+    await _apiService.deleteConversationById(
+      conversationId: normalizedConversationId,
+    );
   }
   
   String? _extractReply(dynamic payload) {
