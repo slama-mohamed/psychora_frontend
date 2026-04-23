@@ -7,7 +7,7 @@ class EndPointUrl {
   static const String resetPassword = 'api/psy/reset-password';
   static const String currentUser = '/api/psy/users/me';
   static const String addPatient = '/api/psy/patients';
-  static const String patientNotes = '/api/psy/patient-notes';
+  static const String patientsNotes = '/api/psy/patients/notes';
   static const String chatbotMessage = 'api/chatbot/message';
   static const String patientConversation = '/api/psy/conversations';
 }

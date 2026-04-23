@@ -14,6 +14,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
   final ApiService _apiService = ApiService();
   final PatientNotesStore _notesStore = PatientNotesStore();
   bool _isLoading = false;
+  String? _deletingPatientId;
 
   @override
   void initState() {
@@ -28,10 +29,40 @@ class _AllNotesPageState extends State<AllNotesPage> {
 
     try {
       final List<PatientNoteModel> notes = await _apiService.getPatientNotes();
+      final Map<String, String> namesByPatientId = <String, String>{};
+
+      try {
+        final patients = await _apiService.getPatients();
+        for (final patient in patients) {
+          final String id = patient.id.trim();
+          final String name = patient.name.trim();
+          if (id.isNotEmpty && name.isNotEmpty) {
+            namesByPatientId[id] = name;
+          }
+        }
+      } catch (_) {
+        // Keep note payload names when patient lookup is unavailable.
+      }
+
+      final List<PatientNoteModel> enrichedNotes = notes
+          .map((PatientNoteModel note) {
+            final String id = note.patientId.trim();
+            final String localName = note.patientName.trim();
+            final String resolvedName =
+                localName.isNotEmpty ? localName : (namesByPatientId[id] ?? '');
+
+            if (resolvedName == note.patientName) {
+              return note;
+            }
+
+            return note.copyWith(patientName: resolvedName);
+          })
+          .toList();
+
       if (!mounted) {
         return;
       }
-      _notesStore.setNotes(notes);
+      _notesStore.setNotes(enrichedNotes);
     } catch (_) {
       if (!mounted) {
         return;
@@ -52,6 +83,161 @@ class _AllNotesPageState extends State<AllNotesPage> {
         });
       }
     }
+  }
+
+  Future<void> _deletePatientNote(PatientNoteModel note) async {
+    final String patientId = note.patientId.trim();
+    if (patientId.isEmpty) {
+      return;
+    }
+
+    setState(() {
+      _deletingPatientId = patientId;
+    });
+
+    try {
+      await _apiService.deletePatientNote(noteId: patientId);
+
+      final List<PatientNoteModel> updated = _notesStore.currentNotes
+          .where((PatientNoteModel item) => item.patientId != patientId)
+          .toList();
+      _notesStore.setNotes(updated);
+
+      if (!mounted) {
+        return;
+      }
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Note supprimée.'),
+          behavior: SnackBarBehavior.floating,
+          duration: Duration(seconds: 2),
+        ),
+      );
+    } catch (error) {
+      if (!mounted) {
+        return;
+      }
+
+      final String details = _extractErrorMessage(error);
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Suppression impossible: $details'),
+          behavior: SnackBarBehavior.floating,
+          duration: const Duration(seconds: 3),
+        ),
+      );
+    } finally {
+      if (mounted) {
+        setState(() {
+          _deletingPatientId = null;
+        });
+      }
+    }
+  }
+
+  Future<void> _confirmDelete(PatientNoteModel note) async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Supprimer la note'),
+          content: Text(
+            'Voulez-vous supprimer la note de ${_resolvePatientName(note)} ?',
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFDC2626),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Supprimer'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed == true) {
+      await _deletePatientNote(note);
+    }
+  }
+
+  String _resolvePatientName(PatientNoteModel note) {
+    final String resolved = note.patientName.trim();
+    if (resolved.isNotEmpty) {
+      return resolved;
+    }
+    return 'Patient sans nom';
+  }
+
+  String _extractErrorMessage(Object error) {
+    final String raw = error.toString().trim();
+    if (raw.isEmpty) {
+      return 'erreur inconnue';
+    }
+
+    const String prefix = 'Exception: ';
+    if (raw.startsWith(prefix) && raw.length > prefix.length) {
+      return raw.substring(prefix.length);
+    }
+
+    return raw;
+  }
+
+  List<_PatientNotesGroup> _groupNotesByPatient(List<PatientNoteModel> notes) {
+    final Map<String, List<PatientNoteModel>> grouped = <String, List<PatientNoteModel>>{};
+    final Map<String, String> namesByKey = <String, String>{};
+
+    for (final PatientNoteModel note in notes) {
+      final String id = note.patientId.trim();
+      final String name = note.patientName.trim();
+      final String key = id.isNotEmpty ? id : name.toLowerCase();
+      if (key.isEmpty) {
+        continue;
+      }
+
+      grouped.putIfAbsent(key, () => <PatientNoteModel>[]).add(note);
+
+      if (!namesByKey.containsKey(key) || namesByKey[key]!.trim().isEmpty) {
+        namesByKey[key] = name;
+      }
+    }
+
+    final List<_PatientNotesGroup> groups = grouped.entries
+        .map((MapEntry<String, List<PatientNoteModel>> entry) {
+          final List<PatientNoteModel> items = List<PatientNoteModel>.of(entry.value)
+            ..sort((PatientNoteModel a, PatientNoteModel b) {
+              return b.updatedAt.compareTo(a.updatedAt);
+            });
+
+          return _PatientNotesGroup(
+            key: entry.key,
+            patientName: (namesByKey[entry.key] ?? '').trim().isEmpty
+                ? 'Patient sans nom'
+                : namesByKey[entry.key]!.trim(),
+            notes: items,
+          );
+        })
+        .toList()
+      ..sort((
+        _PatientNotesGroup a,
+        _PatientNotesGroup b,
+      ) {
+        final DateTime aDate =
+            a.notes.isEmpty ? DateTime.fromMillisecondsSinceEpoch(0) : a.notes.first.updatedAt;
+        final DateTime bDate =
+            b.notes.isEmpty ? DateTime.fromMillisecondsSinceEpoch(0) : b.notes.first.updatedAt;
+        return bDate.compareTo(aDate);
+      });
+
+    return groups;
   }
 
   @override
@@ -113,12 +299,41 @@ class _AllNotesPageState extends State<AllNotesPage> {
                 );
               }
 
+              final List<_PatientNotesGroup> groups = _groupNotesByPatient(notes);
+
+              if (groups.isEmpty) {
+                return Center(
+                  child: Container(
+                    width: double.infinity,
+                    padding: const EdgeInsets.all(20),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(18),
+                      border: Border.all(color: const Color(0xFFE5E7EB)),
+                    ),
+                    child: const Text(
+                      'Aucune note patient disponible.',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(
+                        color: Color(0xFF6B7280),
+                        fontSize: 15,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ),
+                );
+              }
+
               return ListView.separated(
-                itemCount: notes.length,
+                itemCount: groups.length,
                 separatorBuilder: (_, __) => const SizedBox(height: 10),
                 itemBuilder: (context, index) {
-                  final PatientNoteModel note = notes[index];
-                  return _FullNoteCard(note: note);
+                  final _PatientNotesGroup group = groups[index];
+                  return _PatientNotesBlock(
+                    group: group,
+                    deletingPatientId: _deletingPatientId,
+                    onDeleteRequested: _confirmDelete,
+                  );
                 },
               );
             },
@@ -129,16 +344,33 @@ class _AllNotesPageState extends State<AllNotesPage> {
   }
 }
 
-class _FullNoteCard extends StatelessWidget {
-  const _FullNoteCard({required this.note});
+class _PatientNotesGroup {
+  const _PatientNotesGroup({
+    required this.key,
+    required this.patientName,
+    required this.notes,
+  });
 
-  final PatientNoteModel note;
+  final String key;
+  final String patientName;
+  final List<PatientNoteModel> notes;
+}
+
+class _PatientNotesBlock extends StatelessWidget {
+  const _PatientNotesBlock({
+    required this.group,
+    required this.deletingPatientId,
+    required this.onDeleteRequested,
+  });
+
+  final _PatientNotesGroup group;
+  final String? deletingPatientId;
+  final Future<void> Function(PatientNoteModel note) onDeleteRequested;
 
   @override
   Widget build(BuildContext context) {
-    final String title = note.patientName.trim().isEmpty
-        ? 'Patient ${note.patientId}'
-        : note.patientName;
+    final bool isDeleting =
+        deletingPatientId != null && group.key == deletingPatientId;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -175,7 +407,7 @@ class _FullNoteCard extends StatelessWidget {
               const SizedBox(width: 8),
               Expanded(
                 child: Text(
-                  title,
+                  group.patientName,
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                   style: const TextStyle(
@@ -186,7 +418,7 @@ class _FullNoteCard extends StatelessWidget {
                 ),
               ),
               Text(
-                _formatDate(note.updatedAt),
+                '${group.notes.length} note${group.notes.length > 1 ? 's' : ''}',
                 style: const TextStyle(
                   color: Color(0xFF9CA3AF),
                   fontSize: 11,
@@ -196,15 +428,81 @@ class _FullNoteCard extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          Text(
-            note.note,
-            style: const TextStyle(
-              color: Color(0xFF374151),
-              fontSize: 13.5,
-              height: 1.45,
-              fontWeight: FontWeight.w500,
+          ...group.notes.map((PatientNoteModel note) {
+            return Padding(
+              padding: const EdgeInsets.only(bottom: 8),
+              child: Container(
+                width: double.infinity,
+                padding: const EdgeInsets.all(10),
+                decoration: BoxDecoration(
+                  color: const Color(0xFFF9FAFB),
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: <Widget>[
+                    Row(
+                      children: <Widget>[
+                        Text(
+                          _formatDate(note.updatedAt),
+                          style: const TextStyle(
+                            color: Color(0xFF9CA3AF),
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const Spacer(),
+                        IconButton(
+                          onPressed: isDeleting
+                              ? null
+                              : () {
+                                  onDeleteRequested(note);
+                                },
+                          icon: isDeleting
+                              ? const SizedBox(
+                                  width: 16,
+                                  height: 16,
+                                  child: CircularProgressIndicator(strokeWidth: 2),
+                                )
+                              : const Icon(
+                                  Icons.delete_outline,
+                                  color: Color(0xFFDC2626),
+                                  size: 18,
+                                ),
+                          tooltip: 'Supprimer la note',
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      note.note,
+                      style: const TextStyle(
+                        color: Color(0xFF374151),
+                        fontSize: 13.5,
+                        height: 1.45,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            );
+          }),
+          if (group.notes.isNotEmpty) const SizedBox(height: 2),
+          if (isDeleting)
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text(
+                'Suppression en cours...',
+                style: TextStyle(
+                  color: Color(0xFF9CA3AF),
+                  fontSize: 11,
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
             ),
-          ),
         ],
       ),
     );

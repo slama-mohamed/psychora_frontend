@@ -228,7 +228,7 @@ class ApiService {
   Future<Response<dynamic>> savePatientNote({
     required String patientId,
     required String note,
-    String path = EndPointUrl.patientNotes,
+    String path = EndPointUrl.patientsNotes,
   }) async {
     final Map<String, dynamic> payload = <String, dynamic>{
       'patientId': patientId,
@@ -237,7 +237,7 @@ class ApiService {
 
     try {
       return await _dio.put<dynamic>(
-        '$path/$patientId',
+        '${EndPointUrl.patientsNotes}/$patientId',
         data: payload,
       );
     } on DioException catch (error) {
@@ -257,6 +257,17 @@ class ApiService {
       }
     }
 
+    try {
+      return await _dio.post<dynamic>(
+        EndPointUrl.patientsNotes,
+        data: payload,
+      );
+    } on DioException catch (error) {
+      if (!_shouldTryFallback(error.response?.statusCode)) {
+        rethrow;
+      }
+    }
+
     return _dio.post<dynamic>(
       path,
       data: payload,
@@ -264,10 +275,16 @@ class ApiService {
   }
 
   Future<List<PatientNoteModel>> getPatientNotes({
-    String path = EndPointUrl.patientNotes,
+    String path = EndPointUrl.patientsNotes,
+    String? patientId,
   }) async {
+    final String normalizedPatientId = (patientId ?? '').trim();
+    final String primaryPath = normalizedPatientId.isEmpty
+        ? EndPointUrl.patientsNotes
+        : '${EndPointUrl.patientsNotes}/$normalizedPatientId';
+
     try {
-      final Response<dynamic> response = await _dio.get<dynamic>(path);
+      final Response<dynamic> response = await _dio.get<dynamic>(primaryPath);
       return _extractNoteRows(response.data)
           .map((Map<String, dynamic> row) => PatientNoteModel.fromMap(row))
           .where((PatientNoteModel note) {
@@ -277,16 +294,79 @@ class ApiService {
       if (!_shouldTryFallback(error.response?.statusCode)) {
         rethrow;
       }
+    }
 
-      final Response<dynamic> fallbackResponse = await _dio.get<dynamic>(
-        '${EndPointUrl.addPatient}/notes',
-      );
+    try {
+      final Response<dynamic> fallbackResponse = await _dio.get<dynamic>(path);
 
       return _extractNoteRows(fallbackResponse.data)
           .map((Map<String, dynamic> row) => PatientNoteModel.fromMap(row))
           .where((PatientNoteModel note) {
         return note.patientId.isNotEmpty && note.note.trim().isNotEmpty;
       }).toList();
+    } on DioException catch (error) {
+      if (!_shouldTryFallback(error.response?.statusCode)) {
+        rethrow;
+      }
+    }
+
+    final Response<dynamic> secondFallbackResponse = await _dio.get<dynamic>(
+      '${EndPointUrl.addPatient}/notes',
+    );
+
+    return _extractNoteRows(secondFallbackResponse.data)
+        .map((Map<String, dynamic> row) => PatientNoteModel.fromMap(row))
+        .where((PatientNoteModel note) {
+      return note.patientId.isNotEmpty && note.note.trim().isNotEmpty;
+    }).toList();
+  }
+
+  Future<void> deletePatientNote({
+    String? noteId,
+    String? patientId,
+    String path = EndPointUrl.patientsNotes,
+  }) async {
+    final String normalizedNoteId = (noteId ?? patientId ?? '').trim();
+    if (normalizedNoteId.isEmpty) {
+      return;
+    }
+
+    final List<String> endpoints = <String>[
+      '${EndPointUrl.patientsNotes}/$normalizedNoteId',
+      '${EndPointUrl.addPatient}/notes/$normalizedNoteId',
+      '${EndPointUrl.addPatient}/$normalizedNoteId/notes',
+      '$path/$normalizedNoteId',
+    ];
+
+    DioException? lastError;
+
+    for (final String endpoint in endpoints.toSet()) {
+      try {
+        await _dio.delete<dynamic>(endpoint);
+        return;
+      } on DioException catch (error) {
+        final int? statusCode = error.response?.statusCode;
+
+        if (statusCode == 401 || statusCode == 403) {
+          rethrow;
+        }
+
+        lastError = error;
+      }
+    }
+
+    try {
+      await savePatientNote(
+        patientId: normalizedNoteId,
+        note: '',
+        path: path,
+      );
+      return;
+    } on DioException {
+      if (lastError != null) {
+        throw lastError;
+      }
+      rethrow;
     }
   }
 
@@ -294,10 +374,68 @@ class ApiService {
     required String patientId,
     String path = EndPointUrl.patientConversation,
   }) async {
-    final Response<dynamic> response = await _dio.get<dynamic>(
+    try {
+      final Response<dynamic> response = await _dio.get<dynamic>(
+        '$path/$patientId',
+      );
+      return _extractConversationRows(response.data);
+    } on DioException catch (error) {
+      if (!_shouldTryFallback(error.response?.statusCode)) {
+        rethrow;
+      }
+
+      final Response<dynamic> fallbackResponse = await _dio.get<dynamic>(
+        path,
+        queryParameters: <String, dynamic>{'patientId': patientId},
+      );
+
+      return _extractConversationRows(fallbackResponse.data);
+    }
+  }
+
+  Future<Response<dynamic>> savePatientConversation({
+    required String patientId,
+    required List<Map<String, dynamic>> history,
+    String path = EndPointUrl.patientConversation,
+  }) async {
+    final Map<String, dynamic> payload = <String, dynamic>{
+      'patientId': patientId,
+      'messages': history,
+      'history': history,
+    };
+
+    try {
+      return await _dio.post<dynamic>(
+        path,
+        data: payload,
+      );
+    } on DioException catch (error) {
+      if (!_shouldTryFallback(error.response?.statusCode)) {
+        rethrow;
+      }
+    }
+
+    try {
+      return await _dio.put<dynamic>(
+        '$path/$patientId',
+        data: <String, dynamic>{
+          'messages': history,
+          'history': history,
+        },
+      );
+    } on DioException catch (error) {
+      if (!_shouldTryFallback(error.response?.statusCode)) {
+        rethrow;
+      }
+    }
+
+    return _dio.post<dynamic>(
       '$path/$patientId',
+      data: <String, dynamic>{
+        'messages': history,
+        'history': history,
+      },
     );
-    return _extractConversationRows(response.data);
   }
 
   Future<List<Map<String, dynamic>>> getPsyConversations({

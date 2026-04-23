@@ -12,10 +12,26 @@ class PatientNoteModel {
   });
 
   factory PatientNoteModel.fromMap(Map<String, dynamic> map) {
-    final String patientId = (map['patientId'] ?? map['patient_id'] ?? map['id'] ?? '')
-        .toString();
-    final String patientName =
-        (map['patientName'] ?? map['patient_name'] ?? map['name'] ?? '').toString();
+    final dynamic nestedPatient = map['patient'];
+
+    final String patientId = (map['patientId'] ??
+        map['patient_id'] ??
+        map['idPatient'] ??
+        (nestedPatient is Map<String, dynamic>
+          ? (nestedPatient['id'] ?? nestedPatient['_id'] ?? nestedPatient['patientId'])
+          : null) ??
+        map['id'] ??
+        '')
+      .toString();
+    final String patientName = (map['patientName'] ??
+        map['patient_name'] ??
+        map['fullName'] ??
+        map['name'] ??
+        (nestedPatient is Map<String, dynamic>
+          ? (nestedPatient['fullName'] ?? nestedPatient['name'])
+          : null) ??
+        '')
+      .toString();
     final String note = (map['note'] ?? map['content'] ?? map['text'] ?? '').toString();
 
     final dynamic dateValue = map['updatedAt'] ?? map['updated_at'] ?? map['createdAt'];

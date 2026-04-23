@@ -60,12 +60,9 @@ class ChatServices {
     required List<Map<String, dynamic>> history,
   }) async {
     try {
-      await _apiService.dio.post<dynamic>(
-        EndPointUrl.patientConversation,
-        data: <String, dynamic>{
-          'patientId': patientId,
-          'messages': history,
-        },
+      await _apiService.savePatientConversation(
+        patientId: patientId,
+        history: history,
       );
     } catch (error) {
       throw Exception(error.toString());
