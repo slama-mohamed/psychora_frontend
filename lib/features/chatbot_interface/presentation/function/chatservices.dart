@@ -14,13 +14,21 @@ class ChatServices {
   final ApiService _apiService;
 
   Future<String> sendMessage({
+    required String patientId,
     required String userMessage,
     List<Map<String, dynamic>> history = const <Map<String, dynamic>>[],
   }) async {
+    final String normalizedPatientId = patientId.trim();
+    if (normalizedPatientId.isEmpty) {
+      throw Exception('PatientID manquant.');
+    }
+
     try {
       final response = await _apiService.dio.post<dynamic>(
         EndPointUrl.chatbotMessage,
         data: <String, dynamic>{
+          'PatientID': normalizedPatientId,
+          'patientId': normalizedPatientId,
           'message': userMessage,
           'history': history,
         },

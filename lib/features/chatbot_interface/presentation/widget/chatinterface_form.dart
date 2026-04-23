@@ -34,9 +34,9 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
 
   String get _welcomeText {
     if (widget.patientName != null && widget.patientName!.trim().isNotEmpty) {
-      return 'Bonjour! Conversation reprise avec ${widget.patientName!.trim()}. Comment puis-je vous aider aujourd\'hui ?';
+      return 'Hello! Conversation resumed with ${widget.patientName!.trim()}. How can I help you today?';
     }
-    return 'Bonjour! Je suis Psychora, votre assistant de santé mentale. Comment puis-je vous aider aujourd\'hui?';
+    return 'Hello! I am Psychora, your mental health assistant. How can I help you today?';
   }
 
   @override
@@ -98,7 +98,7 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
       ChatMessage(
         text: _welcomeText,
         isUser: false,
-        timestamp: 'À l\'instant',
+        timestamp: 'Just now',
       ),
     );
     _persistConversation();
@@ -129,8 +129,25 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
     });
     _persistConversation();
 
+    final String activePatientId = (widget.patientId ?? '').trim();
+    if (activePatientId.isEmpty) {
+      setState(() {
+        messages.add(
+          ChatMessage(
+            text: 'Impossible to reach the chatbot: unidentified patient.',
+            isUser: false,
+            timestamp: getCurrentTime(),
+          ),
+        );
+        _isSending = false;
+      });
+      _persistConversation();
+      return;
+    }
+
     try {
       final String botReply = await _chatServices.sendMessage(
+        patientId: activePatientId,
         userMessage: userText,
         history: _buildHistory(),
       );
@@ -157,7 +174,7 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
       setState(() {
         messages.add(
           ChatMessage(
-            text: 'Impossible de joindre le chatbot pour le moment. Détail: $error',
+            text: 'Unable to reach the chatbot right now. Detail: $error',
             isUser: false,
             timestamp: getCurrentTime(),
           ),
@@ -189,13 +206,46 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
     return payload
         .map(
           (Map<String, dynamic> entry) => ChatMessage(
-            text: (entry['content'] ?? '').toString(),
+            text: _normalizeLegacyDefaultMessage((entry['content'] ?? '').toString()),
             isUser: (entry['role'] ?? 'assistant').toString() == 'user',
             timestamp: (entry['timestamp'] ?? getCurrentTime()).toString(),
           ),
         )
         .where((ChatMessage message) => message.text.trim().isNotEmpty)
         .toList();
+  }
+
+  String _normalizeLegacyDefaultMessage(String text) {
+    final String normalized = text.trim();
+
+    const String oldGenericWelcome =
+        'Bonjour! Je suis Psychora, votre assistant de sante mentale. Comment puis-je vous aider aujourd\'hui?';
+    const String oldGenericWelcomeAccented =
+        'Bonjour! Je suis Psychora, votre assistant de santé mentale. Comment puis-je vous aider aujourd\'hui?';
+    const String oldResumedPrefix = 'Bonjour! Conversation reprise avec ';
+    const String oldResumedSuffix = '. Comment puis-je vous aider aujourd\'hui ?';
+
+    if (normalized == oldGenericWelcome || normalized == oldGenericWelcomeAccented) {
+      return 'Hello! I am Psychora, your mental health assistant. How can I help you today?';
+    }
+
+    if (normalized.startsWith(oldResumedPrefix) && normalized.endsWith(oldResumedSuffix)) {
+      final String extractedName = normalized
+          .substring(oldResumedPrefix.length, normalized.length - oldResumedSuffix.length)
+          .trim();
+
+      final String patientName = extractedName.isNotEmpty
+          ? extractedName
+          : (widget.patientName ?? '').trim();
+
+      if (patientName.isNotEmpty) {
+        return 'Hello! Conversation resumed with $patientName. How can I help you today?';
+      }
+
+      return 'Hello! I am Psychora, your mental health assistant. How can I help you today?';
+    }
+
+    return text;
   }
 
   Future<void> _persistConversation() async {
@@ -241,7 +291,7 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
                       ),
                       const SizedBox(height: 16),
                       Text(
-                        'Aucun message',
+                        'No messages yet',
                         style: TextStyle(
                           color: Colors.grey.shade500,
                           fontSize: 16,
