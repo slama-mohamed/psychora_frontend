@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:psychora/core/constants/route_name.dart';
 import 'package:psychora/core/network/api_service.dart';
 import 'package:psychora/features/profile_page/data/user_profile_model.dart';
 import 'package:psychora/features/profile_page/presentation/widget/action_buttons.dart';
@@ -27,6 +29,49 @@ class _ProfilepageFormState extends State<ProfilepageForm> {
   Future<UserProfileModel> _loadUserProfile() async {
     final Map<String, dynamic> payload = await _apiService.getCurrentUserData();
     return UserProfileModel.fromApi(payload);
+  }
+
+  Future<void> _handleLogout() async {
+    final bool? confirmed = await showDialog<bool>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: const Text('Se deconnecter'),
+          content: const Text('Voulez-vous vraiment vous deconnecter ?'),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(false),
+              child: const Text('Annuler'),
+            ),
+            ElevatedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFFDC2626),
+                foregroundColor: Colors.white,
+              ),
+              child: const Text('Logout'),
+            ),
+          ],
+        );
+      },
+    );
+
+    if (confirmed != true || !mounted) {
+      return;
+    }
+
+    try {
+      await _apiService.logout();
+    } catch (_) {
+      // Continue local logout flow even if backend endpoint fails.
+      _apiService.clearAuthToken();
+    }
+
+    if (!mounted) {
+      return;
+    }
+
+    context.goNamed(RouteName.loginName);
   }
 
   @override
@@ -122,9 +167,7 @@ class _ProfilepageFormState extends State<ProfilepageForm> {
                   onSettings: () {
                     // navigation settings
                   },
-                  onLogout: () {
-                    // logout logic
-                  },
+                  onLogout: _handleLogout,
                 ),
                 const SizedBox(height: 30),
               ],

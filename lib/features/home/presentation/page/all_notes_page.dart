@@ -14,7 +14,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
   final ApiService _apiService = ApiService();
   final PatientNotesStore _notesStore = PatientNotesStore();
   bool _isLoading = false;
-  String? _deletingPatientId;
+  String? _deletingNoteId;
 
   @override
   void initState() {
@@ -86,20 +86,20 @@ class _AllNotesPageState extends State<AllNotesPage> {
   }
 
   Future<void> _deletePatientNote(PatientNoteModel note) async {
-    final String patientId = note.patientId.trim();
-    if (patientId.isEmpty) {
+    final String noteId = note.id.trim();
+    if (noteId.isEmpty) {
       return;
     }
 
     setState(() {
-      _deletingPatientId = patientId;
+      _deletingNoteId = noteId;
     });
 
     try {
-      await _apiService.deletePatientNote(noteId: patientId);
+      await _apiService.deletePatientNote(patientId: note.patientId, noteId: noteId);
 
       final List<PatientNoteModel> updated = _notesStore.currentNotes
-          .where((PatientNoteModel item) => item.patientId != patientId)
+          .where((PatientNoteModel item) => item.id != noteId)
           .toList();
       _notesStore.setNotes(updated);
 
@@ -131,7 +131,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
     } finally {
       if (mounted) {
         setState(() {
-          _deletingPatientId = null;
+          _deletingNoteId = null;
         });
       }
     }
@@ -331,7 +331,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
                   final _PatientNotesGroup group = groups[index];
                   return _PatientNotesBlock(
                     group: group,
-                    deletingPatientId: _deletingPatientId,
+                    deletingNoteId: _deletingNoteId,
                     onDeleteRequested: _confirmDelete,
                   );
                 },
@@ -359,18 +359,16 @@ class _PatientNotesGroup {
 class _PatientNotesBlock extends StatelessWidget {
   const _PatientNotesBlock({
     required this.group,
-    required this.deletingPatientId,
+    required this.deletingNoteId,
     required this.onDeleteRequested,
   });
 
   final _PatientNotesGroup group;
-  final String? deletingPatientId;
+  final String? deletingNoteId;
   final Future<void> Function(PatientNoteModel note) onDeleteRequested;
 
   @override
   Widget build(BuildContext context) {
-    final bool isDeleting =
-        deletingPatientId != null && group.key == deletingPatientId;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -429,6 +427,7 @@ class _PatientNotesBlock extends StatelessWidget {
           ),
           const SizedBox(height: 10),
           ...group.notes.map((PatientNoteModel note) {
+            final bool isDeleteingThisNote = deletingNoteId == note.id;
             return Padding(
               padding: const EdgeInsets.only(bottom: 8),
               child: Container(
@@ -454,12 +453,12 @@ class _PatientNotesBlock extends StatelessWidget {
                         ),
                         const Spacer(),
                         IconButton(
-                          onPressed: isDeleting
+                          onPressed: isDeleteingThisNote
                               ? null
                               : () {
                                   onDeleteRequested(note);
                                 },
-                          icon: isDeleting
+                          icon: isDeleteingThisNote
                               ? const SizedBox(
                                   width: 16,
                                   height: 16,
@@ -491,18 +490,6 @@ class _PatientNotesBlock extends StatelessWidget {
             );
           }),
           if (group.notes.isNotEmpty) const SizedBox(height: 2),
-          if (isDeleting)
-            const Align(
-              alignment: Alignment.centerLeft,
-              child: Text(
-                'Suppression en cours...',
-                style: TextStyle(
-                  color: Color(0xFF9CA3AF),
-                  fontSize: 11,
-                  fontWeight: FontWeight.w600,
-                ),
-              ),
-            ),
         ],
       ),
     );

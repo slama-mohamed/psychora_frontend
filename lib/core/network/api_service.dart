@@ -52,6 +52,16 @@ class ApiService {
     _onUnauthorized = callback;
   }
 
+  Future<void> logout({
+    String path = EndPointUrl.logout,
+  }) async {
+    try {
+      await _dio.post<dynamic>(path);
+    } finally {
+      clearAuthToken();
+    }
+  }
+
   Future<Response<dynamic>> loginUser({
     required String email,
     required String password,
@@ -322,20 +332,25 @@ class ApiService {
   }
 
   Future<void> deletePatientNote({
+    required String patientId,
     String? noteId,
-    String? patientId,
     String path = EndPointUrl.patientsNotes,
   }) async {
-    final String normalizedNoteId = (noteId ?? patientId ?? '').trim();
-    if (normalizedNoteId.isEmpty) {
+    final String normalizedPatientId = patientId.trim();
+    final String normalizedNoteId = (noteId ?? '').trim();
+    if (normalizedPatientId.isEmpty) {
       return;
     }
 
     final List<String> endpoints = <String>[
-      '${EndPointUrl.patientsNotes}/$normalizedNoteId',
-      '${EndPointUrl.addPatient}/notes/$normalizedNoteId',
-      '${EndPointUrl.addPatient}/$normalizedNoteId/notes',
-      '$path/$normalizedNoteId',
+      if (normalizedNoteId.isNotEmpty) ...<String>[
+        '${EndPointUrl.patientsNotes}/$normalizedNoteId',
+        '${EndPointUrl.addPatient}/notes/$normalizedNoteId',
+        '${EndPointUrl.addPatient}/$normalizedPatientId/notes/$normalizedNoteId',
+      ],
+      '${EndPointUrl.patientsNotes}/$normalizedPatientId',
+      '${EndPointUrl.addPatient}/$normalizedPatientId/notes',
+      '${EndPointUrl.addPatient}/notes/$normalizedPatientId',
     ];
 
     DioException? lastError;
@@ -357,7 +372,7 @@ class ApiService {
 
     try {
       await savePatientNote(
-        patientId: normalizedNoteId,
+        patientId: normalizedPatientId,
         note: '',
         path: path,
       );

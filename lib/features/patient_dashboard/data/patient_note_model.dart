@@ -1,10 +1,12 @@
 class PatientNoteModel {
+  final String id;
   final String patientId;
   final String patientName;
   final String note;
   final DateTime updatedAt;
 
   const PatientNoteModel({
+    required this.id,
     required this.patientId,
     required this.patientName,
     required this.note,
@@ -14,13 +16,14 @@ class PatientNoteModel {
   factory PatientNoteModel.fromMap(Map<String, dynamic> map) {
     final dynamic nestedPatient = map['patient'];
 
+    final String id = (map['id'] ?? map['_id'] ?? map['noteId'] ?? '').toString();
+    
     final String patientId = (map['patientId'] ??
         map['patient_id'] ??
         map['idPatient'] ??
         (nestedPatient is Map<String, dynamic>
           ? (nestedPatient['id'] ?? nestedPatient['_id'] ?? nestedPatient['patientId'])
           : null) ??
-        map['id'] ??
         '')
       .toString();
     final String patientName = (map['patientName'] ??
@@ -41,6 +44,7 @@ class PatientNoteModel {
     }
 
     return PatientNoteModel(
+      id: id,
       patientId: patientId,
       patientName: patientName,
       note: note,
@@ -50,6 +54,7 @@ class PatientNoteModel {
 
   Map<String, dynamic> toMap() {
     return <String, dynamic>{
+      'id': id,
       'patientId': patientId,
       'patientName': patientName,
       'note': note,
@@ -58,12 +63,14 @@ class PatientNoteModel {
   }
 
   PatientNoteModel copyWith({
+    String? id,
     String? patientId,
     String? patientName,
     String? note,
     DateTime? updatedAt,
   }) {
     return PatientNoteModel(
+      id: id ?? this.id,
       patientId: patientId ?? this.patientId,
       patientName: patientName ?? this.patientName,
       note: note ?? this.note,

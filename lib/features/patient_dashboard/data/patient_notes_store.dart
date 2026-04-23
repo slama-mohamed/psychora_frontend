@@ -1,5 +1,6 @@
 import 'package:flutter/foundation.dart';
 import 'package:psychora/features/patient_dashboard/data/patient_note_model.dart';
+import 'dart:math';
 
 class PatientNotesStore {
   PatientNotesStore._internal()
@@ -50,6 +51,7 @@ class PatientNotesStore {
     updated.insert(
       0,
       PatientNoteModel(
+        id: 'temp_${DateTime.now().millisecondsSinceEpoch}_${Random().nextInt(10000)}',
         patientId: patientId,
         patientName: patientName,
         note: normalized,
