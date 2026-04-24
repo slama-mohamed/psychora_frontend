@@ -203,34 +203,109 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
   }
 
   Future<void> _openPatientNotesEditor(PatientModel patient) async {
-    final TextEditingController noteController = TextEditingController(
-      text: _patientNotesStore.getNote(patient.id),
-    );
+    final String patientId = patient.id.trim();
+    final String patientName = patient.name.trim();
 
-    final bool? isSaved = await showDialog<bool>(
+    String draftNote = '';
+
+    final bool? shouldSave = await showDialog<bool>(
       context: context,
-      builder: (BuildContext context) {
+      builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text('Notes - ${patient.name}'),
-          content: TextField(
-            controller: noteController,
-            maxLines: 8,
-            minLines: 5,
-            decoration: const InputDecoration(
-              hintText: 'Write notes for this patient...',
-              border: OutlineInputBorder(),
-            ),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
+          ),
+          titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+          contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+          title: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF7F1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.sticky_note_2_outlined,
+                  color: Color(0xFF2F855A),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  patientName.isEmpty ? 'Patient notes' : 'Notes - $patientName',
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Capture key observations for this patient.',
+                style: TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                initialValue: '',
+                onChanged: (String value) {
+                  draftNote = value;
+                },
+                maxLines: 8,
+                minLines: 5,
+                decoration: InputDecoration(
+                  hintText: 'Write notes for this patient...',
+                  filled: true,
+                  fillColor: const Color(0xFFF9FAFB),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFF2F855A), width: 1.4),
+                  ),
+                ),
+              ),
+            ],
           ),
           actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(context).pop(false),
+            OutlinedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF4B5563),
+                side: const BorderSide(color: Color(0xFFD1D5DB)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
-              onPressed: () => Navigator.of(context).pop(true),
+              onPressed: () => Navigator.of(dialogContext).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3D9970),
+                backgroundColor: const Color(0xFF2F855A),
                 foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
               ),
               child: const Text('Save'),
             ),
@@ -240,53 +315,54 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     );
 
     if (!mounted) {
-      noteController.dispose();
       return;
     }
 
-    if (isSaved == true) {
-      final String normalized = noteController.text.trim();
+    if (shouldSave == true) {
+      final String normalized = draftNote.trim();
+
+      if (normalized.isEmpty) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(
+            content: Text('Write a note before saving.'),
+            behavior: SnackBarBehavior.floating,
+          ),
+        );
+        return;
+      }
 
       try {
         await _apiService.savePatientNote(
-          patientId: patient.id,
+          patientId: patientId,
           note: normalized,
         );
       } catch (_) {
         if (!mounted) {
-          noteController.dispose();
           return;
         }
 
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Failed to save notes for ${patient.name}.'),
+          const SnackBar(
+            content: Text('Failed to save patient notes.'),
             behavior: SnackBarBehavior.floating,
-            margin: const EdgeInsets.all(16),
-            duration: const Duration(seconds: 2),
           ),
         );
-        noteController.dispose();
         return;
       }
 
       _patientNotesStore.saveNote(
-        patientId: patient.id,
-        patientName: patient.name,
+        patientId: patientId,
+        patientName: patientName,
         note: normalized,
       );
 
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Notes saved for ${patient.name}.'),
+        const SnackBar(
+          content: Text('Notes saved.'),
           behavior: SnackBarBehavior.floating,
-          margin: const EdgeInsets.all(16),
-          duration: const Duration(seconds: 2),
         ),
       );
     }
-
-    noteController.dispose();
   }
 
   @override

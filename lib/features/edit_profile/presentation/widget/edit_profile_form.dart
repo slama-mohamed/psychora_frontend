@@ -24,8 +24,8 @@ class _EditProfileFormState extends State<EditProfileForm> {
   final _locationController = TextEditingController();
   final _specialityController = TextEditingController();
   final _hospitalController = TextEditingController();
-  final _experienceController = TextEditingController();
-  final _bioController = TextEditingController();
+  int _yearsOfExperience = 0;
+  String _bio = '';
   late Future<void> _loadUserFuture;
   bool _isSaving = false;
 
@@ -50,9 +50,8 @@ class _EditProfileFormState extends State<EditProfileForm> {
     _specialityController.text =
         profile.specialization == 'N/A' ? '' : profile.specialization;
     _hospitalController.text = profile.hospital;
-    _experienceController.text =
-        profile.yearsOfExperience > 0 ? profile.yearsOfExperience.toString() : '';
-    _bioController.text = profile.bio;
+    _yearsOfExperience = profile.yearsOfExperience;
+    _bio = profile.bio;
   }
 
   @override
@@ -63,8 +62,6 @@ class _EditProfileFormState extends State<EditProfileForm> {
     _locationController.dispose();
     _specialityController.dispose();
     _hospitalController.dispose();
-    _experienceController.dispose();
-    _bioController.dispose();
     super.dispose();
   }
 
@@ -80,17 +77,6 @@ class _EditProfileFormState extends State<EditProfileForm> {
       return;
     }
 
-    final int? yearsOfExperience = int.tryParse(_experienceController.text.trim());
-    if (yearsOfExperience == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Years of experience must be a valid number.'),
-          behavior: SnackBarBehavior.floating,
-        ),
-      );
-      return;
-    }
-
     setState(() {
       _isSaving = true;
     });
@@ -103,8 +89,8 @@ class _EditProfileFormState extends State<EditProfileForm> {
         location: _locationController.text.trim(),
         specialty: _specialityController.text.trim(),
         hospital: _hospitalController.text.trim(),
-        yearsOfExperience: yearsOfExperience,
-        bio: _bioController.text.trim(),
+        yearsOfExperience: _yearsOfExperience,
+        bio: _bio,
       );
 
       if (!mounted) {
@@ -392,37 +378,6 @@ class _EditProfileFormState extends State<EditProfileForm> {
                                                 FormStyles.baseDecoration(
                                               icon: Icons.local_hospital_outlined,
                                               hint: 'Enter your workplace',
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 14),
-                                        LabeledField(
-                                          label: 'Years of Experience',
-                                          child: TextFormField(
-                                            controller: _experienceController,
-                                            keyboardType: TextInputType.number,
-                                            style: FormStyles.inputTextStyle,
-                                            validator: _requiredField,
-                                            decoration:
-                                                FormStyles.baseDecoration(
-                                              icon: Icons.timeline_outlined,
-                                              hint: 'Enter your experience',
-                                            ),
-                                          ),
-                                        ),
-                                        const SizedBox(height: 14),
-                                        LabeledField(
-                                          label: 'Bio',
-                                          child: TextFormField(
-                                            controller: _bioController,
-                                            maxLines: 4,
-                                            style: FormStyles.inputTextStyle,
-                                            validator: _requiredField,
-                                            decoration:
-                                                FormStyles.baseDecoration(
-                                              icon: Icons.notes_rounded,
-                                              hint:
-                                                  'Write a short introduction about yourself',
                                             ),
                                           ),
                                         ),

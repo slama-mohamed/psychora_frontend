@@ -39,33 +39,107 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
     }
 
     final String patientName = (widget.patientName ?? '').trim();
-    final TextEditingController noteController = TextEditingController(
-      text: _patientNotesStore.getNote(patientId),
-    );
+    String draftNote = '';
 
     final bool? shouldSave = await showDialog<bool>(
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: Text(
-            patientName.isEmpty ? 'Notes patient' : 'Notes - $patientName',
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(18),
           ),
-          content: TextField(
-            controller: noteController,
-            maxLines: 8,
-            minLines: 5,
-            decoration: const InputDecoration(
-              hintText: 'Write notes for this patient...',
-              border: OutlineInputBorder(),
-            ),
+          titlePadding: const EdgeInsets.fromLTRB(20, 18, 20, 10),
+          contentPadding: const EdgeInsets.fromLTRB(20, 0, 20, 8),
+          actionsPadding: const EdgeInsets.fromLTRB(12, 0, 12, 10),
+          title: Row(
+            children: [
+              Container(
+                width: 34,
+                height: 34,
+                decoration: BoxDecoration(
+                  color: const Color(0xFFEAF7F1),
+                  borderRadius: BorderRadius.circular(10),
+                ),
+                child: const Icon(
+                  Icons.sticky_note_2_outlined,
+                  color: Color(0xFF2F855A),
+                  size: 20,
+                ),
+              ),
+              const SizedBox(width: 10),
+              Expanded(
+                child: Text(
+                  patientName.isEmpty ? 'Patient notes' : 'Notes - $patientName',
+                  style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: Color(0xFF111827),
+                  ),
+                ),
+              ),
+            ],
+          ),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              const Text(
+                'Capture key observations for this patient.',
+                style: TextStyle(
+                  color: Color(0xFF6B7280),
+                  fontSize: 13,
+                ),
+              ),
+              const SizedBox(height: 12),
+              TextFormField(
+                initialValue: '',
+                onChanged: (String value) {
+                  draftNote = value;
+                },
+                maxLines: 8,
+                minLines: 5,
+                decoration: InputDecoration(
+                  hintText: 'Write notes for this patient...',
+                  filled: true,
+                  fillColor: const Color(0xFFF9FAFB),
+                  border: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+                  enabledBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFFE5E7EB)),
+                  ),
+                  focusedBorder: OutlineInputBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    borderSide: const BorderSide(color: Color(0xFF2F855A), width: 1.4),
+                  ),
+                ),
+              ),
+            ],
           ),
           actions: <Widget>[
-            TextButton(
-              onPressed: () => Navigator.of(dialogContext).pop(false),
+            OutlinedButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              style: OutlinedButton.styleFrom(
+                foregroundColor: const Color(0xFF4B5563),
+                side: const BorderSide(color: Color(0xFFD1D5DB)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
+              style: ElevatedButton.styleFrom(
+                backgroundColor: const Color(0xFF2F855A),
+                foregroundColor: Colors.white,
+                elevation: 0,
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10),
+                ),
+              ),
               child: const Text('Save'),
             ),
           ],
@@ -74,12 +148,11 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
     );
 
     if (!mounted) {
-      noteController.dispose();
       return;
     }
 
     if (shouldSave == true) {
-      final String normalized = noteController.text.trim();
+      final String normalized = draftNote.trim();
 
       if (normalized.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -88,7 +161,6 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
             behavior: SnackBarBehavior.floating,
           ),
         );
-        noteController.dispose();
         return;
       }
 
@@ -99,7 +171,6 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
         );
       } catch (_) {
         if (!mounted) {
-          noteController.dispose();
           return;
         }
 
@@ -109,7 +180,6 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
             behavior: SnackBarBehavior.floating,
           ),
         );
-        noteController.dispose();
         return;
       }
 
@@ -126,8 +196,6 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
         ),
       );
     }
-
-    noteController.dispose();
   }
 
   @override
