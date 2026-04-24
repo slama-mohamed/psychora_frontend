@@ -38,7 +38,7 @@ class PatientModel {
       id: _readString(map, <String>['id', '_id', 'patientId']),
       name: _readString(map, <String>['name', 'fullName', 'patientName']),
       age: _readInt(map, <String>['age']),
-      condition: _readString(map, <String>['condition', 'diagnosis', 'state']),
+      condition: _normalizeCondition(_readString(map, <String>['condition', 'diagnosis', 'state'])),
       lastSeen: _readString(map, <String>['lastSeen', 'lastVisit']),
       sessionsCount: _readInt(map, <String>['sessionsCount', 'sessions']),
     );
@@ -75,5 +75,12 @@ class PatientModel {
       }
     }
     return 0;
+  }
+
+  static String _normalizeCondition(String condition) {
+    if (condition.trim().isEmpty) {
+      return 'Diagnosis not yet established';
+    }
+    return condition;
   }
 }

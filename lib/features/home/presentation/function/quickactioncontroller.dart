@@ -47,7 +47,7 @@ class QuickActionController {
         messenger?.hideCurrentSnackBar();
         messenger?.showSnackBar(
           const SnackBar(
-            content: Text('Echec de l\'ajout du patient sur le serveur.'),
+            content: Text('Failed to add the patient on the server.'),
             behavior: SnackBarBehavior.floating,
           ),
         );

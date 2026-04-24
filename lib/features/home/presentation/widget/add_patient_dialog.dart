@@ -30,9 +30,11 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
     _ageController = TextEditingController(
       text: patient?.age.toString() ?? '',
     );
-    _conditionController = TextEditingController(text: patient?.condition ?? '');
+    _conditionController = TextEditingController(
+      text: patient?.condition ?? 'Diagnosis not yet established',
+    );
     _lastSeenController = TextEditingController(
-      text: patient?.lastSeen ?? 'Aujourd\'hui',
+      text: patient?.lastSeen ?? 'Today',
     );
     _sessionsController = TextEditingController(
       text: patient?.sessionsCount.toString() ?? '0',
@@ -61,11 +63,15 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
       _isSubmitting = true;
     });
 
+    final String conditionValue = _conditionController.text.trim().isEmpty
+        ? 'Diagnosis not yet established'
+        : _conditionController.text.trim();
+
     final newPatient = PatientModel(
       id: widget.initialPatient?.id ?? '',
       name: _nameController.text.trim(),
       age: parsedAge,
-      condition: _conditionController.text.trim(),
+      condition: conditionValue,
       lastSeen: _lastSeenController.text.trim(),
       sessionsCount: int.tryParse(_sessionsController.text.trim()) ?? 0,
     );
@@ -131,12 +137,12 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
               TextFormField(
                 controller: _nameController,
                 decoration: _fieldDecoration(
-                  'Nom complet',
+                  'Full name',
                   'Ex: Sara El Moussa',
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Le nom est requis';
+                    return 'Name is required';
                   }
                   return null;
                 },
@@ -144,14 +150,14 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _ageController,
-                decoration: _fieldDecoration('Âge', 'Ex: 29'),
+                decoration: _fieldDecoration('Age', 'Ex: 29'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'L\'âge est requis';
+                    return 'Age is required';
                   }
                   if (int.tryParse(value.trim()) == null) {
-                    return 'Saisir un âge valide';
+                    return 'Enter a valid age';
                   }
                   return null;
                 },
@@ -160,13 +166,10 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
               TextFormField(
                 controller: _conditionController,
                 decoration: _fieldDecoration(
-                  'Diagnostic / état',
-                  'Ex: Trouble d\'anxiété generalisée',
+                  'Diagnosis / condition',
+                  'Diagnosis not yet established',
                 ),
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Le diagnostic est requis';
-                  }
                   return null;
                 },
               ),
@@ -174,12 +177,12 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
               TextFormField(
                 controller: _lastSeenController,
                 decoration: _fieldDecoration(
-                  'Dernière visite',
-                  'Ex: 2 jours ago',
+                  'Last visit',
+                  'Ex: 2 days ago',
                 ),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'La date de dernière visite est requise';
+                    return 'Last visit date is required';
                   }
                   return null;
                 },
@@ -187,14 +190,14 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _sessionsController,
-                decoration: _fieldDecoration('Nombre de séances', 'Ex: 8'),
+                decoration: _fieldDecoration('Sessions count', 'Ex: 8'),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
-                    return 'Le nombre de séances est requis';
+                    return 'Sessions count is required';
                   }
                   if (int.tryParse(value.trim()) == null) {
-                    return 'Saisir un nombre valide';
+                    return 'Enter a valid number';
                   }
                   return null;
                 },

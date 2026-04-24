@@ -41,7 +41,7 @@ class RecentActivitySection extends StatelessWidget {
               ),
               const SizedBox(width: 10),
               const Text(
-                "Séances d'Aujourd'hui",
+                "Today's sessions",
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w800,

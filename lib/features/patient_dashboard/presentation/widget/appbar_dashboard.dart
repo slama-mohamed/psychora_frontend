@@ -47,7 +47,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               const Text(
-                'Tableau de Bord',
+                'Dashboard',
                 style: TextStyle(
                   fontSize: 18,
                   fontWeight: FontWeight.w700,
@@ -56,7 +56,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
                 ),
               ),
               Text(
-                'Gestion des patients',
+                'Patient management',
                 style: TextStyle(
                   fontSize: 12,
                   fontWeight: FontWeight.w500,
@@ -71,7 +71,7 @@ class CustomAppBar extends StatelessWidget implements PreferredSizeWidget {
       actions: [
         Actionbuttondashboard(
           icon: Icons.add_circle_outline,
-          label: 'Ajouter',
+          label: 'Add Patient',
           onPressed: () {
             PatientDashboardController.handleAddPatient(context);
           },

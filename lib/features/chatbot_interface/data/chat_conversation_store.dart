@@ -140,7 +140,7 @@ class ChatConversationStore {
 
     final String content = (firstUserMessage?['content'] ?? '').toString().trim();
     if (content.isEmpty) {
-      return 'Conversation sans titre';
+      return 'Untitled conversation';
     }
 
     if (content.length <= 40) {

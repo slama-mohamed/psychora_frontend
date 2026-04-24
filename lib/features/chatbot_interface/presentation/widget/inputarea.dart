@@ -38,7 +38,7 @@ class InputArea extends StatelessWidget {
               controller: controller,
               enabled: enabled,
               decoration: InputDecoration(
-                hintText: 'Tapez votre message...',
+                hintText: 'Type your message...',
                 hintStyle: TextStyle(color: Colors.grey.shade400, fontSize: 14),
                 border: InputBorder.none,
                 contentPadding: const EdgeInsets.symmetric(
@@ -76,7 +76,7 @@ class InputArea extends StatelessWidget {
                       color: Color(0xFF3D9970),
                       size: 20,
                     ),
-              tooltip: 'Envoyer',
+              tooltip: 'Send',
             ),
           ),
         ],

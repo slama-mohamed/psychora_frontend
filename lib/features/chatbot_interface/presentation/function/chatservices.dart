@@ -36,7 +36,7 @@ class ChatServices {
 
       final String? parsedReply = _extractReply(response.data);
       if (parsedReply == null || parsedReply.trim().isEmpty) {
-        throw Exception('Réponse du chatbot invalide.');
+        throw Exception('Invalid chatbot response.');
       }
 
       return parsedReply;
@@ -177,7 +177,7 @@ class ChatServices {
       }
     }
 
-    return 'Erreur reseau lors de la communication avec le chatbot.';
+    return 'Network error while communicating with the chatbot.';
   }
 
 }

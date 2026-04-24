@@ -65,7 +65,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Impossible de charger les patients depuis la base de données.'),
+          content: Text('Unable to load patients from the database.'),
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 2),
         ),
@@ -94,12 +94,12 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Supprimer patient'),
-          content: Text('Supprimer ${patient.name} de la liste des patients ?'),
+          title: const Text('Delete patient'),
+          content: Text('Remove ${patient.name} from the patient list?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Annuler'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
@@ -107,7 +107,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                 backgroundColor: const Color(0xFFDC2626),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Supprimer'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -128,7 +128,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Echec de suppression de ${patient.name} sur le serveur.'),
+          content: Text('Failed to delete ${patient.name} on the server.'),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
@@ -143,7 +143,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Patient supprimé: ${patient.name}'),
+        content: Text('Patient deleted: ${patient.name}'),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2),
@@ -179,7 +179,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Echec de modification de ${patient.name} sur le serveur.'),
+          content: Text('Failed to update ${patient.name} on the server.'),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
@@ -194,7 +194,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-        content: Text('Patient mis à jour: ${updatedPatient.name}'),
+        content: Text('Patient updated: ${updatedPatient.name}'),
         behavior: SnackBarBehavior.floating,
         margin: const EdgeInsets.all(16),
         duration: const Duration(seconds: 2),
@@ -217,22 +217,22 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
             maxLines: 8,
             minLines: 5,
             decoration: const InputDecoration(
-              hintText: 'Ecrire des notes pour ce patient...',
+              hintText: 'Write notes for this patient...',
               border: OutlineInputBorder(),
             ),
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(context).pop(false),
-              child: const Text('Annuler'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFF3D9970),
+                backgroundColor: const Color(0xFFDC2626),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Enregistrer'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -260,7 +260,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Echec de sauvegarde des notes pour ${patient.name}.'),
+            content: Text('Failed to save notes for ${patient.name}.'),
             behavior: SnackBarBehavior.floating,
             margin: const EdgeInsets.all(16),
             duration: const Duration(seconds: 2),
@@ -278,7 +278,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Notes enregistrées pour ${patient.name}.'),
+          content: Text('Notes saved for ${patient.name}.'),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
@@ -335,8 +335,8 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                         const SizedBox(height: 20),
                         Text(
                           _searchController.text.isEmpty
-                              ? 'Aucun patient disponible'
-                              : 'Aucun patient trouvé',
+                              ? 'No patients available'
+                              : 'No patients found',
                           style: const TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.w600,
@@ -346,8 +346,8 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                         const SizedBox(height: 8),
                         Text(
                           _searchController.text.isEmpty
-                              ? 'Commencez à ajouter des patients'
-                              : 'Essayez une autre recherche',
+                              ? 'Start adding patients'
+                              : 'Try another search',
                           style: TextStyle(
                             fontSize: 14,
                             color: Colors.grey[600],
@@ -384,7 +384,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                           ScaffoldMessenger.of(context).showSnackBar(
                             SnackBar(
                               content: Text(
-                                'Profil: ${patient.name}',
+                                'Profile: ${patient.name}',
                               ),
                               behavior: SnackBarBehavior.floating,
                               margin: const EdgeInsets.all(16),

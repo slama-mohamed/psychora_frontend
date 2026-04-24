@@ -169,7 +169,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      'Impossible de charger vos informations.',
+                      'Unable to load your information.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
@@ -188,7 +188,7 @@ class _EditProfileFormState extends State<EditProfileForm> {
                         backgroundColor: const Color(0xFF3D9970),
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('Reessayer'),
+                      child: const Text('Retry'),
                     ),
                   ],
                 ),

@@ -58,7 +58,7 @@ class _PdfViewerPageState extends State<PdfViewerPage> {
       });
     } catch (e) {
       setState(() {
-        _error = 'Impossible de charger le PDF\n$e';
+        _error = 'Unable to load the PDF\n$e';
         _isLoading = false;
       });
     }

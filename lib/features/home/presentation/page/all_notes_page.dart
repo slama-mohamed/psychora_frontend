@@ -71,7 +71,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(
         const SnackBar(
-          content: Text('Impossible de charger toutes les notes.'),
+          content: Text('Unable to load all notes.'),
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 2),
         ),
@@ -109,7 +109,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
-          content: Text('Note supprimée.'),
+          content: Text('Note deleted.'),
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 2),
         ),
@@ -123,7 +123,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Suppression impossible: $details'),
+          content: Text('Unable to delete: $details'),
           behavior: SnackBarBehavior.floating,
           duration: const Duration(seconds: 3),
         ),
@@ -142,14 +142,14 @@ class _AllNotesPageState extends State<AllNotesPage> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Supprimer la note'),
+          title: const Text('Delete note'),
           content: Text(
-            'Voulez-vous supprimer la note de ${_resolvePatientName(note)} ?',
+            'Do you want to delete the note from ${_resolvePatientName(note)}?',
           ),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Annuler'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -157,7 +157,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
                 backgroundColor: const Color(0xFFDC2626),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Supprimer'),
+              child: const Text('Delete'),
             ),
           ],
         );
@@ -174,13 +174,13 @@ class _AllNotesPageState extends State<AllNotesPage> {
     if (resolved.isNotEmpty) {
       return resolved;
     }
-    return 'Patient sans nom';
+    return 'Unnamed patient';
   }
 
   String _extractErrorMessage(Object error) {
     final String raw = error.toString().trim();
     if (raw.isEmpty) {
-      return 'erreur inconnue';
+      return 'unknown error';
     }
 
     const String prefix = 'Exception: ';
@@ -259,7 +259,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
         actions: <Widget>[
           IconButton(
             onPressed: _isLoading ? null : _loadNotes,
-            tooltip: 'Rafraichir',
+            tooltip: 'Refresh',
             icon: _isLoading
                 ? const SizedBox(
                     width: 18,
@@ -287,7 +287,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
                       border: Border.all(color: const Color(0xFFE5E7EB)),
                     ),
                     child: const Text(
-                      'Aucune note patient disponible.',
+                      'No patient notes available.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFF6B7280),
@@ -312,7 +312,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
                       border: Border.all(color: const Color(0xFFE5E7EB)),
                     ),
                     child: const Text(
-                      'Aucune note patient disponible.',
+                      'No patient notes available.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         color: Color(0xFF6B7280),
@@ -469,7 +469,7 @@ class _PatientNotesBlock extends StatelessWidget {
                                   color: Color(0xFFDC2626),
                                   size: 18,
                                 ),
-                          tooltip: 'Supprimer la note',
+                          tooltip: 'Delete note',
                           visualDensity: VisualDensity.compact,
                         ),
                       ],

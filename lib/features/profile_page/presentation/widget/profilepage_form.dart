@@ -36,12 +36,12 @@ class _ProfilepageFormState extends State<ProfilepageForm> {
       context: context,
       builder: (BuildContext dialogContext) {
         return AlertDialog(
-          title: const Text('Se deconnecter'),
-          content: const Text('Voulez-vous vraiment vous deconnecter ?'),
+          title: const Text('Logout'),
+          content: const Text('Do you really want to log out?'),
           actions: <Widget>[
             TextButton(
               onPressed: () => Navigator.of(dialogContext).pop(false),
-              child: const Text('Annuler'),
+              child: const Text('Cancel'),
             ),
             ElevatedButton(
               onPressed: () => Navigator.of(dialogContext).pop(true),
@@ -103,7 +103,7 @@ class _ProfilepageFormState extends State<ProfilepageForm> {
                     ),
                     const SizedBox(height: 12),
                     const Text(
-                      'Impossible de charger vos informations.',
+                      'Unable to load your information.',
                       textAlign: TextAlign.center,
                       style: TextStyle(
                         fontSize: 15,
@@ -122,7 +122,7 @@ class _ProfilepageFormState extends State<ProfilepageForm> {
                         backgroundColor: const Color(0xFF3D9970),
                         foregroundColor: Colors.white,
                       ),
-                      child: const Text('Reessayer'),
+                      child: const Text('Retry'),
                     ),
                   ],
                 ),
