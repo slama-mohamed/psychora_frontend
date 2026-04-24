@@ -229,10 +229,10 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
             ElevatedButton(
               onPressed: () => Navigator.of(context).pop(true),
               style: ElevatedButton.styleFrom(
-                backgroundColor: const Color(0xFFDC2626),
+                backgroundColor: const Color(0xFF3D9970),
                 foregroundColor: Colors.white,
               ),
-              child: const Text('Delete'),
+              child: const Text('Save'),
             ),
           ],
         );
