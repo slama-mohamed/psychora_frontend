@@ -5,13 +5,13 @@ import 'package:psychora/features/profile_page/presentation/widget/settings_butt
 
 class ActionButtons extends StatelessWidget {
   final VoidCallback onEdit;
-  final VoidCallback onSettings;
+  final VoidCallback? onSettings;
   final VoidCallback onLogout;
 
   const ActionButtons({
     super.key,
     required this.onEdit,
-    required this.onSettings,
+    this.onSettings,
     required this.onLogout,
   });
 
@@ -22,8 +22,10 @@ class ActionButtons extends StatelessWidget {
       child: Column(
         children: [
           EditProfileButton(onPressed: onEdit),
-          const SizedBox(height: 12),
-          SettingsButton(onPressed: onSettings),
+          if (onSettings != null) ...[
+            const SizedBox(height: 12),
+            SettingsButton(onPressed: onSettings!),
+          ],
           const SizedBox(height: 12),
           LogoutButton(onPressed: onLogout),
         ],

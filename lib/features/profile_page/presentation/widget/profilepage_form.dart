@@ -6,7 +6,6 @@ import 'package:psychora/features/profile_page/data/user_profile_model.dart';
 import 'package:psychora/features/profile_page/presentation/widget/action_buttons.dart';
 import 'package:psychora/features/profile_page/presentation/widget/information_section.dart';
 import 'package:psychora/features/profile_page/presentation/widget/profile_header.dart';
-import 'package:psychora/features/profile_page/presentation/widget/stat_section.dart';
 
 class ProfilepageForm extends StatefulWidget {
   const ProfilepageForm({super.key});
@@ -151,21 +150,11 @@ class _ProfilepageFormState extends State<ProfilepageForm> {
                   location: profile.location,
                   specialization: profile.specialization,
                 ),
-                const SizedBox(height: 20),
-
-                StatSection(
-                  patientsCount: profile.patientsCount,
-                  sessionsCount: profile.sessionsCount,
-                  rating: profile.rating,
-                ),
                 const SizedBox(height: 30),
 
                 ActionButtons(
                   onEdit: () {
                     setState(() => _isEditing = !_isEditing);
-                  },
-                  onSettings: () {
-                    // navigation settings
                   },
                   onLogout: _handleLogout,
                 ),
