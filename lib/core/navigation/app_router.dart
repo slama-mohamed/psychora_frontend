@@ -32,7 +32,7 @@ class AppRouter {
   static const String allNotesPage = '/allnotes';
 
   static final GoRouter router = GoRouter(
-    initialLocation: login,
+    initialLocation: home,
     routes: [
       GoRoute(
         path: splash,
