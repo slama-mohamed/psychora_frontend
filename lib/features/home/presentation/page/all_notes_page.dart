@@ -15,11 +15,26 @@ class _AllNotesPageState extends State<AllNotesPage> {
   final PatientNotesStore _notesStore = PatientNotesStore();
   bool _isLoading = false;
   String? _deletingNoteId;
+  final TextEditingController _searchController = TextEditingController();
+  String _searchQuery = '';
 
   @override
   void initState() {
     super.initState();
     _loadNotes();
+    _searchController.addListener(_onSearchChanged);
+  }
+
+  @override
+  void dispose() {
+    _searchController.dispose();
+    super.dispose();
+  }
+
+  void _onSearchChanged() {
+    setState(() {
+      _searchQuery = _searchController.text.trim().toLowerCase();
+    });
   }
 
   Future<void> _loadNotes() async {
@@ -300,71 +315,154 @@ class _AllNotesPageState extends State<AllNotesPage> {
       body: SafeArea(
         child: Padding(
           padding: const EdgeInsets.all(16),
-          child: ValueListenableBuilder<List<PatientNoteModel>>(
-            valueListenable: _notesStore.notesNotifier,
-            builder: (context, notes, _) {
-              if (notes.isEmpty) {
-                return Center(
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
+          child: Column(
+            children: [
+              // Search bar
+              Container(
+                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
+                  border: Border.all(color: const Color(0xFFE5E7EB)),
+                ),
+                child: Row(
+                  children: [
+                    const Icon(
+                      Icons.search,
+                      color: Color(0xFF9CA3AF),
+                      size: 20,
                     ),
-                    child: const Text(
-                      'No patient notes available.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF6B7280),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                    const SizedBox(width: 8),
+                    Expanded(
+                      child: TextField(
+                        controller: _searchController,
+                        decoration: const InputDecoration(
+                          hintText: 'Search by patient name...',
+                          border: InputBorder.none,
+                          isDense: true,
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        style: const TextStyle(
+                          fontSize: 14,
+                          color: Color(0xFF374151),
+                        ),
                       ),
                     ),
-                  ),
-                );
-              }
-
-              final List<_PatientNotesGroup> groups = _groupNotesByPatient(notes);
-
-              if (groups.isEmpty) {
-                return Center(
-                  child: Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(18),
-                      border: Border.all(color: const Color(0xFFE5E7EB)),
-                    ),
-                    child: const Text(
-                      'No patient notes available.',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Color(0xFF6B7280),
-                        fontSize: 15,
-                        fontWeight: FontWeight.w500,
+                    if (_searchQuery.isNotEmpty)
+                      IconButton(
+                        onPressed: () {
+                          _searchController.clear();
+                        },
+                        icon: const Icon(
+                          Icons.clear,
+                          color: Color(0xFF9CA3AF),
+                          size: 18,
+                        ),
+                        visualDensity: VisualDensity.compact,
                       ),
-                    ),
-                  ),
-                );
-              }
+                  ],
+                ),
+              ),
+              const SizedBox(height: 16),
+              // Notes list
+              Expanded(
+                child: ValueListenableBuilder<List<PatientNoteModel>>(
+                  valueListenable: _notesStore.notesNotifier,
+                  builder: (context, notes, _) {
+                    if (notes.isEmpty) {
+                      return Center(
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                          ),
+                          child: const Text(
+                            'No patient notes available.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF6B7280),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
 
-              return ListView.separated(
-                itemCount: groups.length,
-                separatorBuilder: (_, __) => const SizedBox(height: 10),
-                itemBuilder: (context, index) {
-                  final _PatientNotesGroup group = groups[index];
-                  return _PatientNotesBlock(
-                    group: group,
-                    deletingNoteId: _deletingNoteId,
-                    onDeleteRequested: _confirmDelete,
-                    onOpenNote: _openNoteDetails,
-                  );
-                },
-              );
-            },
+                    final List<_PatientNotesGroup> groups = _groupNotesByPatient(notes);
+
+                    if (groups.isEmpty) {
+                      return Center(
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                          ),
+                          child: const Text(
+                            'No patient notes available.',
+                            textAlign: TextAlign.center,
+                            style: TextStyle(
+                              color: Color(0xFF6B7280),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    // Filter groups based on search query
+                    final List<_PatientNotesGroup> filteredGroups = _searchQuery.isEmpty
+                        ? groups
+                        : groups.where((group) =>
+                            group.patientName.toLowerCase().contains(_searchQuery)).toList();
+
+                    if (filteredGroups.isEmpty) {
+                      return Center(
+                        child: Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.all(20),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(18),
+                            border: Border.all(color: const Color(0xFFE5E7EB)),
+                          ),
+                          child: Text(
+                            'No notes found for "${_searchController.text}".',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(
+                              color: Color(0xFF6B7280),
+                              fontSize: 15,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ),
+                      );
+                    }
+
+                    return ListView.separated(
+                      itemCount: filteredGroups.length,
+                      separatorBuilder: (_, __) => const SizedBox(height: 10),
+                      itemBuilder: (context, index) {
+                        final _PatientNotesGroup group = filteredGroups[index];
+                        return _PatientNotesBlock(
+                          group: group,
+                          deletingNoteId: _deletingNoteId,
+                          onDeleteRequested: _confirmDelete,
+                          onOpenNote: _openNoteDetails,
+                        );
+                      },
+                    );
+                  },
+                ),
+              ),
+            ],
           ),
         ),
       ),
