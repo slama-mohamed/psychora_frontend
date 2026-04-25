@@ -48,7 +48,7 @@ class HomeHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome back, Dr. Sarah',
+                      'Welcome back , Dr.Mohamed !',
                       style: TextStyle(
                         fontSize: 22,
                         height: 1.1,
@@ -115,7 +115,7 @@ class HomeHeader extends StatelessWidget {
                 ),
                 SizedBox(width: 6),
                 Text(
-                  '3 séances aujourd’hui',
+                  '3 sessions today',
                   style: TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,

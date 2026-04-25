@@ -127,7 +127,7 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
 
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-            content: Text('Suppression backend impossible pour cette conversation.'),
+            content: Text('Unable to delete this conversation from backend.'),
             behavior: SnackBarBehavior.floating,
           ),
         );
@@ -204,7 +204,7 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
 
       setState(() {
         _isLoadingDrawerConversations = false;
-        _drawerError = 'Chargement des conversations impossible.';
+        _drawerError = 'Unable to load conversations.';
       });
     }
   }
@@ -366,7 +366,7 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
 
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-        content: Text('Nouvelle conversation démarrée.'),
+        content: Text('New conversation started.'),
         behavior: SnackBarBehavior.floating,
       ),
     );
@@ -391,7 +391,7 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
               const ListTile(
                 leading: Icon(Icons.history, color: Color(0xFF1F2937)),
                 title: Text(
-                  'Conversations sauvegardées',
+                  'Saved conversations',
                   style: TextStyle(fontWeight: FontWeight.w700),
                 ),
               ),
@@ -413,7 +413,7 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
                         child: Padding(
                           padding: EdgeInsets.symmetric(horizontal: 24),
                           child: Text(
-                            'Aucune conversation sauvegardée pour le moment.',
+                            'No saved conversations yet.',
                             textAlign: TextAlign.center,
                           ),
                         ),
@@ -425,7 +425,7 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
                           final Map<String, dynamic> item = savedConversations[index];
                           final String id = (item['id'] ?? '').toString();
                           final String title =
-                              (item['title'] ?? 'Conversation sans titre').toString();
+                              (item['title'] ?? 'Untitled conversation').toString();
                           final String updatedAt =
                               _formatIsoDate((item['updatedAt'] ?? '').toString());
 
@@ -440,7 +440,7 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
                             onTap: () => _openSavedConversation(id),
                             trailing: IconButton(
                               icon: const Icon(Icons.delete_outline),
-                              tooltip: 'Supprimer',
+                              tooltip: 'Delete',
                               onPressed: () async {
                                 await _deleteSavedConversation(id);
                               },

@@ -13,7 +13,7 @@ class HeaderText extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Text(
-            '${filteredPatients.length} patient${filteredPatients.length > 1 ? 's' : ''} disponible${filteredPatients.length > 1 ? 's' : ''}',
+            '${filteredPatients.length} patient${filteredPatients.length > 1 ? 's' : ''} available${filteredPatients.length > 1 ? 's' : ''}',
             style: TextStyle(
               fontSize: 17,
               color: Color(0xFF1F2937),

@@ -38,7 +38,7 @@ class _BarreDeRechercheState extends State<BarreDeRecherche> {
             widget.onChanged?.call(value);
           },
           decoration: InputDecoration(
-            hintText: 'Chercher par nom, condition...',
+            hintText: 'Search by name, condition...',
             hintStyle: TextStyle(
               color: Colors.grey[400],
               fontSize: 14,

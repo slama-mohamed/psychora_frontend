@@ -39,7 +39,7 @@ class _AllNotesSectionState extends State<AllNotesSection> {
       final messenger = ScaffoldMessenger.maybeOf(context);
       messenger?.showSnackBar(
         const SnackBar(
-          content: Text('Impossible de charger les notes depuis la base de donnees.'),
+          content: Text('Unable to load notes from the database.'),
           behavior: SnackBarBehavior.floating,
           duration: Duration(seconds: 2),
         ),
@@ -115,7 +115,7 @@ class _AllNotesSectionState extends State<AllNotesSection> {
                       )
                     : const Icon(Icons.refresh_rounded),
                 color: const Color(0xFFB45309),
-                tooltip: 'Rafraichir les notes',
+                tooltip: 'Refresh notes',
               ),
             ],
           ),
@@ -133,7 +133,7 @@ class _AllNotesSectionState extends State<AllNotesSection> {
                     border: Border.all(color: const Color(0xFFF3E3C6)),
                   ),
                   child: const Text(
-                    'Aucune note disponible pour le moment.',
+                    'No notes available right now.',
                     style: TextStyle(
                       color: Color(0xFF6B7280),
                       fontWeight: FontWeight.w500,

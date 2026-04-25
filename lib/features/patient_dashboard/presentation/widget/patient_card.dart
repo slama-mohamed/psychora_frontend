@@ -58,12 +58,23 @@ class PatientCard extends StatelessWidget {
 
   Color _getConditionColor(String condition) {
     final c = condition.toLowerCase();
+    if (c.contains('diagnosis not yet established') || c.contains('not yet established')) {
+      return const Color(0xFFFEE2E2);
+    }
     if (c.contains('depressive') || c.contains('dépressif')) return const Color(0xFFFFCDD2);
     if (c.contains('anxiety') || c.contains('anxiété')) return const Color(0xFFFFE0B2);
     if (c.contains('ptsd') || c.contains('stress')) return const Color(0xFFE1BEE7);
     if (c.contains('sleep') || c.contains('sommeil')) return const Color(0xFFBBDEFB);
     if (c.contains('bipolar') || c.contains('bipolaire')) return const Color(0xFFF8BBD0);
     return const Color(0xFFC8E6C9);
+  }
+
+  Color _getConditionTextColor(String condition) {
+    final c = condition.toLowerCase();
+    if (c.contains('diagnosis not yet established') || c.contains('not yet established')) {
+      return const Color(0xFF991B1B);
+    }
+    return Colors.grey[700]!;
   }
 
   Color _getAvatarBgColor(String name) {
@@ -151,7 +162,7 @@ class PatientCard extends StatelessWidget {
                           style: TextStyle(
                             fontSize: 11,
                             fontWeight: FontWeight.w600,
-                            color: Colors.grey[700],
+                            color: _getConditionTextColor(condition),
                           ),
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
@@ -172,7 +183,7 @@ class PatientCard extends StatelessWidget {
                 const Icon(Icons.cake_outlined, size: 14, color: Color(0xFF9CA3AF)),
                 const SizedBox(width: 4),
                 Text(
-                  '$age ans',
+                  '$age years',
                   style: const TextStyle(fontSize: 12, color: Color(0xFF9CA3AF)),
                 ),
                 const SizedBox(width: 14),
