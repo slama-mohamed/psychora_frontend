@@ -392,6 +392,9 @@ class ApiService {
     try {
       final Response<dynamic> response = await _dio.get<dynamic>(
         '$path/$patientId',
+        queryParameters: <String, dynamic>{
+          'limit': 1000, // Fetch up to 1000 messages to ensure all are loaded
+        },
       );
       return _extractConversationRows(response.data);
     } on DioException catch (error) {
@@ -401,7 +404,10 @@ class ApiService {
 
       final Response<dynamic> fallbackResponse = await _dio.get<dynamic>(
         path,
-        queryParameters: <String, dynamic>{'patientId': patientId},
+        queryParameters: <String, dynamic>{
+          'patientId': patientId,
+          'limit': 1000,
+        },
       );
 
       return _extractConversationRows(fallbackResponse.data);

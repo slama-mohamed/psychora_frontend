@@ -169,6 +169,33 @@ class _AllNotesPageState extends State<AllNotesPage> {
     }
   }
 
+  Future<void> _openNoteDetails(PatientNoteModel note) async {
+    final String patientName = note.patientName.trim().isEmpty
+        ? 'Patient ${note.patientId}'
+        : note.patientName.trim();
+
+    await showDialog<void>(
+      context: context,
+      builder: (BuildContext dialogContext) {
+        return AlertDialog(
+          title: Text(patientName),
+          content: SingleChildScrollView(
+            child: Text(
+              note.note.trim().isEmpty ? 'No note content.' : note.note,
+              style: const TextStyle(fontSize: 14, height: 1.5),
+            ),
+          ),
+          actions: <Widget>[
+            TextButton(
+              onPressed: () => Navigator.of(dialogContext).pop(),
+              child: const Text('Close'),
+            ),
+          ],
+        );
+      },
+    );
+  }
+
   String _resolvePatientName(PatientNoteModel note) {
     final String resolved = note.patientName.trim();
     if (resolved.isNotEmpty) {
@@ -333,6 +360,7 @@ class _AllNotesPageState extends State<AllNotesPage> {
                     group: group,
                     deletingNoteId: _deletingNoteId,
                     onDeleteRequested: _confirmDelete,
+                    onOpenNote: _openNoteDetails,
                   );
                 },
               );
@@ -361,14 +389,18 @@ class _PatientNotesBlock extends StatelessWidget {
     required this.group,
     required this.deletingNoteId,
     required this.onDeleteRequested,
+    required this.onOpenNote,
   });
 
   final _PatientNotesGroup group;
   final String? deletingNoteId;
   final Future<void> Function(PatientNoteModel note) onDeleteRequested;
+  final Future<void> Function(PatientNoteModel note) onOpenNote;
 
   @override
   Widget build(BuildContext context) {
+    final PatientNoteModel latestNote = group.notes.first;
+    final bool isDeleteingThisNote = deletingNoteId == latestNote.id;
 
     return Container(
       padding: const EdgeInsets.all(14),
@@ -426,10 +458,11 @@ class _PatientNotesBlock extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 10),
-          ...group.notes.map((PatientNoteModel note) {
-            final bool isDeleteingThisNote = deletingNoteId == note.id;
-            return Padding(
-              padding: const EdgeInsets.only(bottom: 8),
+          Padding(
+            padding: const EdgeInsets.only(bottom: 8),
+            child: InkWell(
+              borderRadius: BorderRadius.circular(12),
+              onTap: () => onOpenNote(latestNote),
               child: Container(
                 width: double.infinity,
                 padding: const EdgeInsets.all(10),
@@ -444,7 +477,7 @@ class _PatientNotesBlock extends StatelessWidget {
                     Row(
                       children: <Widget>[
                         Text(
-                          _formatDate(note.updatedAt),
+                          _formatDate(latestNote.updatedAt),
                           style: const TextStyle(
                             color: Color(0xFF9CA3AF),
                             fontSize: 11,
@@ -452,11 +485,20 @@ class _PatientNotesBlock extends StatelessWidget {
                           ),
                         ),
                         const Spacer(),
+                        if (group.notes.length > 1)
+                          Text(
+                            '+ ${group.notes.length - 1} older',
+                            style: const TextStyle(
+                              color: Color(0xFF9CA3AF),
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                            ),
+                          ),
                         IconButton(
                           onPressed: isDeleteingThisNote
                               ? null
                               : () {
-                                  onDeleteRequested(note);
+                                  onDeleteRequested(latestNote);
                                 },
                           icon: isDeleteingThisNote
                               ? const SizedBox(
@@ -476,7 +518,9 @@ class _PatientNotesBlock extends StatelessWidget {
                     ),
                     const SizedBox(height: 4),
                     Text(
-                      note.note,
+                      latestNote.note,
+                      maxLines: 3,
+                      overflow: TextOverflow.ellipsis,
                       style: const TextStyle(
                         color: Color(0xFF374151),
                         fontSize: 13.5,
@@ -487,8 +531,8 @@ class _PatientNotesBlock extends StatelessWidget {
                   ],
                 ),
               ),
-            );
-          }),
+            ),
+          ),
           if (group.notes.isNotEmpty) const SizedBox(height: 2),
         ],
       ),

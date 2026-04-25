@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:psychora/core/network/api_service.dart';
 import 'package:psychora/features/chatbot_interface/presentation/function/chatservices.dart';
 import 'package:psychora/features/chatbot_interface/presentation/widget/chatmessage.dart';
 import 'package:psychora/features/chatbot_interface/presentation/widget/inputarea.dart';
@@ -21,6 +22,7 @@ class ChatinterfaceForm extends StatefulWidget {
 class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
   late final TextEditingController _messageController;
   late final ChatServices _chatServices;
+  final ApiService _apiService = ApiService();
   final List<ChatMessage> messages = [];
   bool _isSending = false;
 
@@ -36,13 +38,100 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
     super.initState();
     _messageController = TextEditingController();
     _chatServices = ChatServices();
-    messages.add(
-      ChatMessage(
-        text: _welcomeText,
-        isUser: false,
-        timestamp: 'Just now',
-      ),
-    );
+    _loadConversationHistory();
+  }
+
+  Future<void> _loadConversationHistory() async {
+    final String patientId = (widget.patientId ?? '').trim();
+    if (patientId.isEmpty) {
+      // Add welcome message if no patient
+      messages.add(
+        ChatMessage(
+          text: _welcomeText,
+          isUser: false,
+          timestamp: 'Just now',
+        ),
+      );
+      setState(() {});
+      return;
+    }
+
+    try {
+      final List<Map<String, dynamic>> history = await _apiService.getPatientConversation(
+        patientId: patientId,
+      );
+
+      print('Loaded ${history.length} messages from history for patient $patientId');
+
+      if (!mounted) return;
+
+      if (history.isNotEmpty) {
+        // Convert history to ChatMessage
+        for (final Map<String, dynamic> msg in history) {
+          final String role = msg['role'] ?? msg['sender'] ?? '';
+          final String content = msg['content'] ?? msg['message'] ?? msg['text'] ?? '';
+          final String timestamp = msg['timestamp'] ?? msg['createdAt'] ?? 'Unknown';
+
+          if (content.isNotEmpty) {
+            messages.add(
+              ChatMessage(
+                text: content,
+                isUser: role.toLowerCase() == 'user',
+                timestamp: _formatTimestamp(timestamp),
+              ),
+            );
+          }
+        }
+        print('Added ${messages.length} messages to UI for patient $patientId');
+      } else {
+        // Add welcome message if no history
+        messages.add(
+          ChatMessage(
+            text: _welcomeText,
+            isUser: false,
+            timestamp: 'Just now',
+          ),
+        );
+      }
+    } catch (error) {
+      print('Error loading conversation history for patient $patientId: $error');
+      // On error, add welcome message
+      messages.add(
+        ChatMessage(
+          text: _welcomeText,
+          isUser: false,
+          timestamp: 'Just now',
+        ),
+      );
+    }
+
+    setState(() {});
+  }
+
+  String _formatTimestamp(String timestamp) {
+    if (timestamp.trim().isEmpty) {
+      return '';
+    }
+
+    DateTime? dt;
+    try {
+      dt = DateTime.parse(timestamp);
+    } catch (_) {
+      try {
+        final int epoch = int.parse(timestamp);
+        dt = DateTime.fromMillisecondsSinceEpoch(epoch);
+      } catch (_) {
+        dt = null;
+      }
+    }
+
+    if (dt == null) {
+      return '';
+    }
+
+    final String hour = dt.hour.toString().padLeft(2, '0');
+    final String minute = dt.minute.toString().padLeft(2, '0');
+    return '$hour:$minute';
   }
 
   @override
