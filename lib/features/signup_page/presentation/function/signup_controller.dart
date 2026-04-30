@@ -31,7 +31,15 @@ class SignupController {
       );
     }
     if (selectedRole == "Student") {
-      AppNavigationFunctions.navigateToCompleteProfileStudent(context);
+      AppNavigationFunctions.navigateToCompleteProfileStudent(
+        context,
+        signupData: <String, dynamic>{
+          'fullName': name,
+          'email': email,
+          'password': password,
+          'role': selectedRole,
+        },
+      );
     }
   }
 

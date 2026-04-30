@@ -68,7 +68,11 @@ class AppRouter {
       GoRoute(
         path: completeProfileStudent,
         name: RouteName.completeProfileStudent,
-        builder: (context, state) => const CompleteProfileStudent(),
+        builder: (context, state) => CompleteProfileStudent(
+          signupData: state.extra is Map<String, dynamic>
+              ? state.extra! as Map<String, dynamic>
+              : null,
+        ),
       ),
       GoRoute(
         path: chatbotinterface,

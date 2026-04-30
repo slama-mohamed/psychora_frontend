@@ -4,10 +4,15 @@ import 'package:psychora/features/complete_signup_doctor/presentation/widget/pro
 import 'package:psychora/features/complete_signup_doctor/presentation/widget/profile_header.dart';
 import 'package:psychora/features/complete_signup_doctor/presentation/widget/progress_bar.dart';
 import 'package:psychora/features/signup_page/presentation/page/signup_page.dart';
+import 'package:psychora/core/network/api_service.dart';
+import 'package:dio/dio.dart';
+import 'package:psychora/features/signup_page/presentation/function/navigation_functions.dart';
 import 'package:psychora/core/validators/eight_digit_validator.dart';
 
 class CompleteProfileStudent extends StatefulWidget {
-  const CompleteProfileStudent({super.key});
+  const CompleteProfileStudent({super.key, this.signupData});
+
+  final Map<String, dynamic>? signupData;
 
   @override
   State<CompleteProfileStudent> createState() =>
@@ -59,9 +64,53 @@ class _CompleteProfileStudentState
         _phoneController.text.length == 8;
   }
 
-  void _handleCompleteProfile() {
-    if (_formKey.currentState!.validate()) {
-      debugPrint("Student profile valid");
+  void _handleCompleteProfile() async {
+    if (!_formKey.currentState!.validate()) return;
+
+    final fullName = widget.signupData?['fullName'] as String? ?? '';
+    final email = widget.signupData?['email'] as String? ?? '';
+    final password = widget.signupData?['password'] as String? ?? '';
+    final university = _universityController.text.trim();
+    final degree = _degreeController.text.trim();
+    final year = _yearController.text.trim();
+    final location = _locationController.text.trim();
+    final phone = _phoneController.text.trim();
+
+    final ApiService api = ApiService();
+
+    showDialog<void>(
+      context: context,
+      barrierDismissible: false,
+      builder: (BuildContext ctx) {
+        return const Center(child: CircularProgressIndicator());
+      },
+    );
+
+    try {
+      final Response<dynamic> response = await api.signupStudent(
+        fullName: fullName,
+        email: email,
+        password: password,
+        university: university,
+        degree: degree,
+        year: year,
+        location: location,
+        phone: phone,
+      );
+
+      if (!mounted) return;
+      Navigator.of(context).pop();
+
+      if (response.statusCode != null && response.statusCode! >= 200 && response.statusCode! < 300) {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Compte étudiant créé avec succès')));
+        AppNavigationFunctions.navigateToLogin(context);
+      } else {
+        ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Erreur lors de la création du compte')));
+      }
+    } catch (error) {
+      if (!mounted) return;
+      Navigator.of(context).pop();
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text('Erreur: ${error.toString()}')));
     }
   }
 

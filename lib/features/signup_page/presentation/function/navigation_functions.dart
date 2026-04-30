@@ -11,8 +11,8 @@ class AppNavigationFunctions {
     context.pushNamed(RouteName.doctorprofilepage, extra: signupData);
   }
 
-  static void navigateToCompleteProfileStudent(BuildContext context) {
-    context.pushNamed(RouteName.completeProfileStudent);
+  static void navigateToCompleteProfileStudent(BuildContext context, {Map<String, dynamic>? signupData}) {
+    context.pushNamed(RouteName.completeProfileStudent, extra: signupData);
   }
 
   static void navigateToLogin(BuildContext context) {

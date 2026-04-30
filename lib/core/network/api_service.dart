@@ -129,6 +129,45 @@ class ApiService {
     return response;
   }
 
+  Future<Response<dynamic>> signupStudent({
+    required String fullName,
+    required String email,
+    required String password,
+    required String university,
+    required String degree,
+    required String year,
+    required String location,
+    required String phone,
+    String path = EndPointUrl.signup,
+  }) async {
+    final response = await _dio.post<dynamic>(
+      path,
+      data: <String, dynamic>{
+        'fullName': fullName,
+        'email': email,
+        'password': password,
+        'role': 'Student',
+        'university': university,
+        'degree': degree,
+        'year': year,
+        'location': location,
+        'phone': phone,
+      },
+    );
+
+    final dynamic responseData = response.data;
+    if (responseData is Map<String, dynamic>) {
+      final String? token = (responseData['accessToken'] as String?) ??
+          (responseData['token'] as String?);
+
+      if (token != null && token.isNotEmpty) {
+        setAuthToken(token);
+      }
+    }
+
+    return response;
+  }
+
   Future<Response<dynamic>> requestPasswordResetLink({
     required String email,
     String path = EndPointUrl.forgotPassword,
