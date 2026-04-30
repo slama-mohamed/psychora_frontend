@@ -83,6 +83,7 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
       });
       return;
     }
+
     try {
       final String botReply = await _chatServices.sendMessage(
         patientId: activePatientId,

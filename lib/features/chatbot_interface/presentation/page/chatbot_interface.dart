@@ -22,6 +22,7 @@ class _ChatbotInterfaceState extends State<ChatbotInterface> {
   final ApiService _apiService = ApiService();
   final PatientNotesStore _patientNotesStore = PatientNotesStore();
   final ChatServices _chatServices = ChatServices();
+
   Future<void> _openPatientNotesEditor() async {
     final String patientId = (widget.patientId ?? '').trim();
     if (patientId.isEmpty) {

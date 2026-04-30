@@ -59,7 +59,7 @@ class QuickActionController {
   }
 
   static void handleNavigateToChat(BuildContext context) {
-    context.pushNamed(RouteName.chatbotinterface);
+    context.pushNamed(RouteName.chatbotGeneral);
   }
 
   static void handleNavigateToResources(BuildContext context) {

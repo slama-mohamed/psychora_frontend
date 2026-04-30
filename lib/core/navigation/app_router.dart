@@ -1,5 +1,6 @@
 import 'package:go_router/go_router.dart';
 import 'package:psychora/core/constants/route_name.dart';
+import 'package:psychora/features/chatbot_general/presentation/page/chatbot_general_page.dart';
 import 'package:psychora/features/chatbot_interface/presentation/page/chatbot_interface.dart';
 import 'package:psychora/features/complete_signup_doctor/presentation/page/doctor_profile_page.dart';
 import 'package:psychora/features/complete_signup_student/presentation/widget/complete_form.dart';
@@ -23,6 +24,7 @@ class AppRouter {
   static const String doctorprofilepage = '/doctorprofilepage';
   static const String completeProfileStudent = '/completeprofilestudent';
   static const String chatbotinterface = '/chatbotinterface';
+  static const String chatbotGeneral = '/chatbotgeneral';
   static const String forgotPassword = '/forgotpassword';
   static const String resetpassword = '/resetpassword';
   static const String patientdashboardpage = '/patientdashboardpage';
@@ -32,7 +34,7 @@ class AppRouter {
   static const String allNotesPage = '/allnotes';
 
   static final GoRouter router = GoRouter(
-    initialLocation: splash,
+    initialLocation: chatbotGeneral,
     routes: [
       GoRoute(
         path: splash,
@@ -90,6 +92,11 @@ class AppRouter {
             patientName: patientName,
           );
         },
+      ),
+      GoRoute(
+        path: chatbotGeneral,
+        name: RouteName.chatbotGeneral,
+        builder: (context, state) => const ChatbotGeneralPage(),
       ),
       GoRoute(
         path: forgotPassword,

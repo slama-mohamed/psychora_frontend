@@ -13,13 +13,20 @@ Future<void> handleHomeNavigation({
   final messenger = ScaffoldMessenger.maybeOf(context);
 
   try {
-    await ApiService().loginUser(
+    final response = await ApiService().loginUser(
       email: email,
       password: password,
       path: loginPath,
     );
 
     if (!context.mounted) return;
+
+    final String? role = _extractRole(response.data);
+    if (role == 'student') {
+      context.goNamed(RouteName.chatbotGeneral);
+      return;
+    }
+
     context.goNamed(RouteName.home);
   } on DioException catch (error) {
     if (!context.mounted) return;
@@ -42,6 +49,33 @@ Future<void> handleHomeNavigation({
       ),
     );
   }
+}
+
+String? _extractRole(dynamic responseData) {
+  if (responseData is! Map<String, dynamic>) {
+    return null;
+  }
+
+  final List<dynamic> candidates = <dynamic>[
+    responseData['role'],
+    responseData['userRole'],
+    responseData['type'],
+    responseData['account'] is Map<String, dynamic>
+        ? (responseData['account'] as Map<String, dynamic>)['role']
+        : null,
+    responseData['user'] is Map<String, dynamic>
+        ? (responseData['user'] as Map<String, dynamic>)['role']
+        : null,
+  ];
+
+  for (final dynamic candidate in candidates) {
+    final String normalized = candidate?.toString().trim().toLowerCase() ?? '';
+    if (normalized.isNotEmpty) {
+      return normalized;
+    }
+  }
+
+  return null;
 }
 
 String _resolveApiErrorMessage(DioException error) {
