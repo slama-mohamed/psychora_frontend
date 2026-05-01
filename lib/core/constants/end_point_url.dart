@@ -11,4 +11,9 @@ class EndPointUrl {
   static const String patientsNotes = '/api/psy/patients/notes';
   static const String chatbotMessage = '/api/psy/conversations/message';
   static const String patientConversation = '/api/psy/conversations';
+  
+  // Student Chat Endpoints
+  static const String studentMessage = '/api/psy/student/message';
+  static const String studentMessages = '/api/psy/student/messages';
+  static const String clearStudentMessages = '/api/psy/student/messages';
 }

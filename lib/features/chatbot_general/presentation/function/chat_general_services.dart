@@ -89,6 +89,89 @@ class ChatGeneralServices {
     return null;
   }
 
+  // ==================== Student Chat Endpoints ====================
+
+  /// Send a message for student chat
+  /// 
+  /// Sends a student message to the backend and retrieves the AI reply
+  Future<String> sendStudentMessage({
+    required String userMessage,
+    List<Map<String, dynamic>> history = const <Map<String, dynamic>>[],
+  }) async {
+    try {
+      final Response<dynamic> response = await _apiService.dio.post<dynamic>(
+        EndPointUrl.studentMessage,
+        data: <String, dynamic>{
+          'message': userMessage,
+          'history': history,
+        },
+      );
+
+      final String? parsedReply = _extractReply(response.data);
+      if (parsedReply == null || parsedReply.trim().isEmpty) {
+        throw Exception('Invalid student chat response.');
+      }
+
+      return parsedReply;
+    } on DioException catch (error) {
+      throw Exception(_extractApiError(error));
+    }
+  }
+
+  /// Retrieve all student chat messages from database
+  /// 
+  /// Fetches the complete conversation history for the current student
+  Future<List<Map<String, dynamic>>> getStudentMessages() async {
+    try {
+      final Response<dynamic> response =
+          await _apiService.dio.get<dynamic>(
+        EndPointUrl.studentMessages,
+      );
+
+      // Handle different response formats
+      if (response.data is List) {
+        return List<Map<String, dynamic>>.from(
+          response.data as List<dynamic>,
+        );
+      } else if (response.data is Map<String, dynamic>) {
+        final Map<String, dynamic> data =
+            response.data as Map<String, dynamic>;
+
+        // Try to extract messages from common response structures
+        if (data['messages'] is List) {
+          return List<Map<String, dynamic>>.from(
+            data['messages'] as List<dynamic>,
+          );
+        } else if (data['data'] is List) {
+          return List<Map<String, dynamic>>.from(
+            data['data'] as List<dynamic>,
+          );
+        } else if (data['conversations'] is List) {
+          return List<Map<String, dynamic>>.from(
+            data['conversations'] as List<dynamic>,
+          );
+        }
+      }
+
+      return <Map<String, dynamic>>[];
+    } on DioException catch (error) {
+      throw Exception(_extractApiError(error));
+    }
+  }
+
+  /// Delete/clear all student chat messages from database
+  /// 
+  /// Clears the entire conversation history for the current student
+  Future<void> clearStudentMessages() async {
+    try {
+      await _apiService.dio.delete<dynamic>(
+        EndPointUrl.clearStudentMessages,
+      );
+    } on DioException catch (error) {
+      throw Exception(_extractApiError(error));
+    }
+  }
+
   String _extractApiError(DioException error) {
     final dynamic responseData = error.response?.data;
 

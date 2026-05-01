@@ -34,7 +34,7 @@ class AppRouter {
   static const String allNotesPage = '/allnotes';
 
   static final GoRouter router = GoRouter(
-    initialLocation: chatbotGeneral,
+    initialLocation: home,
     routes: [
       GoRoute(
         path: splash,
