@@ -1,12 +1,64 @@
 import 'package:flutter/material.dart';
-import 'package:psychora/features/home/presentation/widget/home_form_data.dart';
+import 'package:provider/provider.dart';
 import 'package:psychora/features/home/presentation/widget/recentactivityitem.dart';
+import 'package:psychora/features/patients/domain/models/patient.dart';
+import 'package:psychora/features/patients/presentation/providers/patient_provider.dart';
 
 class RecentActivitySection extends StatelessWidget {
   const RecentActivitySection({super.key});
 
+  static const List<Color> _avatarBackgrounds = <Color>[
+    Color(0xFFD7F3E8),
+    Color(0xFFDDEBFF),
+    Color(0xFFF0E0FF),
+    Color(0xFFFFF1E3),
+    Color(0xFFE8F5E9),
+    Color(0xFFF8E1FF),
+  ];
+
+  static const List<Color> _avatarForegrounds = <Color>[
+    Color(0xFF2E8B57),
+    Color(0xFF3B82F6),
+    Color(0xFFA855F7),
+    Color(0xFFB55620),
+    Color(0xFF2F855A),
+    Color(0xFF8B5CF6),
+  ];
+
+  Color _avatarBackgroundColor(String name) {
+    final int index = name.isEmpty ? 0 : name.codeUnitAt(0) % _avatarBackgrounds.length;
+    return _avatarBackgrounds[index];
+  }
+
+  Color _avatarForegroundColor(String name) {
+    final int index = name.isEmpty ? 0 : name.codeUnitAt(0) % _avatarForegrounds.length;
+    return _avatarForegrounds[index];
+  }
+
+  String _formatSessionTime(String? nextVisit) {
+    if (nextVisit == null || nextVisit.trim().isEmpty) {
+      return 'No visit';
+    }
+    final DateTime? date = DateTime.tryParse(nextVisit);
+    if (date == null) {
+      return 'No visit';
+    }
+    return '${date.hour.toString().padLeft(2, '0')}:${date.minute.toString().padLeft(2, '0')}';
+  }
+
   @override
   Widget build(BuildContext context) {
+    final List<Patient> todayPatients = context.watch<PatientProvider>().todayPatients;
+    final List<RecentActivityItem> todaySessions = todayPatients.map((Patient patient) {
+      return RecentActivityItem(
+        name: patient.name,
+        diagnosis: patient.condition,
+        time: _formatSessionTime(patient.nextVisit),
+        avatarBackgroundColor: _avatarBackgroundColor(patient.name),
+        avatarForegroundColor: _avatarForegroundColor(patient.name),
+      );
+    }).toList();
+
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -51,17 +103,42 @@ class RecentActivitySection extends StatelessWidget {
             ],
           ),
           const SizedBox(height: 14),
-          ...HomeFormData.todaySessions.asMap().entries.map((entry) {
-            final index = entry.key;
-            final item = entry.value;
-            return Column(
-              children: [
-                _TodaySessionCard(item: item),
-                if (index < HomeFormData.todaySessions.length - 1)
-                  const SizedBox(height: 10),
-              ],
-            );
-          }),
+          if (todaySessions.isEmpty)
+            Center(
+              child: Column(
+                children: const [
+                  SizedBox(height: 20),
+                  Text(
+                    'No sessions today',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.w600,
+                      color: Color(0xFF1F2937),
+                    ),
+                  ),
+                  SizedBox(height: 8),
+                  Text(
+                    'Add a visit date to a patient to see it here.',
+                    style: TextStyle(
+                      fontSize: 13,
+                      color: Color(0xFF6B7280),
+                    ),
+                  ),
+                ],
+              ),
+            )
+          else
+            ...todaySessions.asMap().entries.map((entry) {
+              final int index = entry.key;
+              final RecentActivityItem item = entry.value;
+              return Column(
+                children: [
+                  _TodaySessionCard(item: item),
+                  if (index < todaySessions.length - 1)
+                    const SizedBox(height: 10),
+                ],
+              );
+            }),
         ],
       ),
     );

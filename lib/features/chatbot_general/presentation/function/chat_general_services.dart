@@ -1,4 +1,5 @@
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:psychora/core/constants/end_point_url.dart';
 import 'package:psychora/core/network/api_service.dart';
 
@@ -13,6 +14,17 @@ class ChatGeneralServices {
 
   final ApiService _apiService;
 
+  Options _authOptions() {
+    final String? token = _apiService.currentToken;
+    debugPrint('DEBUG: Student chat token = $token');
+    if (token != null && token.isNotEmpty) {
+      return Options(headers: <String, dynamic>{
+        'Authorization': 'Bearer $token',
+      });
+    }
+    return Options();
+  }
+
   Future<String> sendMessage({
     required String userMessage,
     List<Map<String, dynamic>> history = const <Map<String, dynamic>>[],
@@ -24,6 +36,7 @@ class ChatGeneralServices {
           'message': userMessage,
           'history': history,
         },
+        options: _authOptions(),
       );
 
       final String? parsedReply = _extractReply(response.data);
@@ -105,6 +118,7 @@ class ChatGeneralServices {
           'message': userMessage,
           'history': history,
         },
+        options: _authOptions(),
       );
 
       final String? parsedReply = _extractReply(response.data);
@@ -126,6 +140,7 @@ class ChatGeneralServices {
       final Response<dynamic> response =
           await _apiService.dio.get<dynamic>(
         EndPointUrl.studentMessages,
+        options: _authOptions(),
       );
 
       // Handle different response formats
@@ -166,6 +181,7 @@ class ChatGeneralServices {
     try {
       await _apiService.dio.delete<dynamic>(
         EndPointUrl.clearStudentMessages,
+        options: _authOptions(),
       );
     } on DioException catch (error) {
       throw Exception(_extractApiError(error));
@@ -193,4 +209,6 @@ class ChatGeneralServices {
 
     return 'Network error while communicating with the chatbot.';
   }
+
+
 }

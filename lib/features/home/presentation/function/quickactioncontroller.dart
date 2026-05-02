@@ -1,61 +1,42 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psychora/core/constants/route_name.dart';
-import 'package:psychora/core/network/api_service.dart';
 import 'package:psychora/features/home/presentation/widget/add_patient_dialog.dart';
-import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
-import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
+import 'package:psychora/features/patients/domain/models/patient.dart';
+import 'package:psychora/features/patients/presentation/providers/patient_provider.dart';
 
 class QuickActionController {
-  static final PatientStore _patientStore = PatientStore();
-  static final ApiService _apiService = ApiService();
-
-  /// Ouvre le dialog d'ajout de patient et retourne le `PatientModel` créé.
-  /// Retourne `null` si l'utilisateur annule.
-  static Future<PatientModel?> openAddPatientDialog(BuildContext context) async {
-    final result = await showDialog<PatientModel>(
+  static Future<Patient?> openAddPatientDialog(BuildContext context) async {
+    final Patient? result = await showDialog<Patient>(
       context: context,
       barrierDismissible: true,
       builder: (_) => const AddPatientDialog(),
     );
 
-    PatientModel? createdPatient;
-
-    if (result != null) {
-      try {
-        final response = await _apiService.addPatient(
-          name: result.name,
-          age: result.age,
-          condition: result.condition,
-          lastSeen: result.lastSeen,
-          sessionsCount: result.sessionsCount,
-        );
-
-        final String patientId = _extractPatientId(response.data);
-        createdPatient = PatientModel(
-          id: patientId,
-          name: result.name,
-          age: result.age,
-          condition: result.condition,
-          lastSeen: result.lastSeen,
-          sessionsCount: result.sessionsCount,
-        );
-
-        _patientStore.addPatient(createdPatient);
-      } catch (_) {
-        final messenger = ScaffoldMessenger.maybeOf(context);
-        messenger?.hideCurrentSnackBar();
-        messenger?.showSnackBar(
-          const SnackBar(
-            content: Text('Failed to add the patient on the server.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        return null;
-      }
+    if (result == null) {
+      return null;
     }
 
-    return createdPatient ?? result;
+    final PatientProvider provider = Provider.of<PatientProvider>(context, listen: false);
+    final String id = result.id.isNotEmpty ? result.id : provider.generateId();
+    final Patient patient = result.copyWith(id: id);
+
+    try {
+      await provider.addPatient(patient).timeout(const Duration(seconds: 60));
+    } catch (_) {
+      final messenger = ScaffoldMessenger.maybeOf(context);
+      messenger?.hideCurrentSnackBar();
+      messenger?.showSnackBar(
+        const SnackBar(
+          content: Text('Failed to save the patient locally.'),
+          behavior: SnackBarBehavior.floating,
+        ),
+      );
+      return null;
+    }
+
+    return patient;
   }
 
   static void handleNavigateToChat(BuildContext context) {
@@ -64,27 +45,5 @@ class QuickActionController {
 
   static void handleNavigateToResources(BuildContext context) {
     context.goNamed(RouteName.resourcesPage);
-  }
-
-  static String _extractPatientId(dynamic responseData) {
-    if (responseData is String && responseData.isNotEmpty) {
-      return responseData;
-    }
-
-    if (responseData is Map<String, dynamic>) {
-      final dynamic directId = responseData['id'] ?? responseData['patientId'];
-      if (directId is String && directId.isNotEmpty) {
-        return directId;
-      }
-
-      for (final String key in <String>['data', 'patient', 'result']) {
-        final String nestedId = _extractPatientId(responseData[key]);
-        if (nestedId.isNotEmpty) {
-          return nestedId;
-        }
-      }
-    }
-
-    throw StateError('Backend response did not include a patient id.');
   }
 }

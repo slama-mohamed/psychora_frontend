@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
+import 'package:psychora/features/patients/domain/models/patient.dart';
 
 class HeaderText extends StatelessWidget {
-  final List<PatientModel> filteredPatients;
+  final List<Patient> filteredPatients;
   const HeaderText({super.key, required this.filteredPatients});
 
   @override

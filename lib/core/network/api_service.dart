@@ -75,17 +75,32 @@ class ApiService {
       },
     );
 
-    final dynamic responseData = response.data;
-    if (responseData is Map<String, dynamic>) {
-      final String? token = (responseData['accessToken'] as String?) ??
-          (responseData['token'] as String?);
-
-      if (token != null && token.isNotEmpty) {
-        setAuthToken(token);
-      }
+    final String? token = _extractAuthToken(response.data);
+    if (token != null && token.isNotEmpty) {
+      setAuthToken(token);
     }
 
     return response;
+  }
+
+  String? _extractAuthToken(dynamic responseData) {
+    if (responseData is Map<String, dynamic>) {
+      for (final String key in <String>['accessToken', 'token']) {
+        final dynamic value = responseData[key];
+        if (value is String && value.trim().isNotEmpty) {
+          return value.trim();
+        }
+      }
+
+      for (final dynamic nestedValue in responseData.values) {
+        final String? nestedToken = _extractAuthToken(nestedValue);
+        if (nestedToken != null && nestedToken.isNotEmpty) {
+          return nestedToken;
+        }
+      }
+    }
+
+    return null;
   }
 
   Future<Response<dynamic>> signupPsychologist({
@@ -116,14 +131,9 @@ class ApiService {
       },
     );
 
-    final dynamic responseData = response.data;
-    if (responseData is Map<String, dynamic>) {
-      final String? token = (responseData['accessToken'] as String?) ??
-          (responseData['token'] as String?);
-
-      if (token != null && token.isNotEmpty) {
-        setAuthToken(token);
-      }
+    final String? token = _extractAuthToken(response.data);
+    if (token != null && token.isNotEmpty) {
+      setAuthToken(token);
     }
 
     return response;
@@ -155,14 +165,9 @@ class ApiService {
       },
     );
 
-    final dynamic responseData = response.data;
-    if (responseData is Map<String, dynamic>) {
-      final String? token = (responseData['accessToken'] as String?) ??
-          (responseData['token'] as String?);
-
-      if (token != null && token.isNotEmpty) {
-        setAuthToken(token);
-      }
+    final String? token = _extractAuthToken(response.data);
+    if (token != null && token.isNotEmpty) {
+      setAuthToken(token);
     }
 
     return response;
@@ -222,9 +227,15 @@ class ApiService {
       'sessionsCount': sessionsCount,
     };
 
+    final Options options = Options(
+      receiveTimeout: const Duration(seconds: 30),
+      sendTimeout: const Duration(seconds: 30),
+    );
+
     return _dio.post<dynamic>(
       path,
       data: data,
+      options: options,
     );
   }
 

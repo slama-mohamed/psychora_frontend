@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
+import 'package:provider/provider.dart';
 import 'package:psychora/core/constants/route_name.dart';
-import 'package:psychora/core/network/api_service.dart';
 import 'package:psychora/features/home/presentation/widget/add_patient_dialog.dart';
-import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
+import 'package:psychora/features/patients/domain/models/patient.dart';
 import 'package:psychora/features/patient_dashboard/data/patient_notes_store.dart';
-import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
+import 'package:psychora/features/patients/presentation/providers/patient_provider.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/barre_de_recherche.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/header_text.dart';
 import 'package:psychora/features/patient_dashboard/presentation/widget/patient_card.dart';
@@ -21,61 +21,41 @@ class Patientdashboardform extends StatefulWidget {
 
 class _PatientdashboardformState extends State<Patientdashboardform> {
   late TextEditingController _searchController;
-  final PatientStore _patientStore = PatientStore();
   final PatientNotesStore _patientNotesStore = PatientNotesStore();
-  final ApiService _apiService = ApiService();
-  late List<PatientModel> _allPatients;
-  late List<PatientModel> _filteredPatients;
+  late List<Patient> _allPatients;
+  late List<Patient> _filteredPatients;
 
   @override
   void initState() {
     super.initState();
     _searchController = TextEditingController();
-    _allPatients = _patientStore.currentPatients;
-    _filteredPatients = _allPatients;
+    _allPatients = <Patient>[];
+    _filteredPatients = <Patient>[];
     _searchController.addListener(_filterPatients);
-    _patientStore.patientsNotifier.addListener(_handlePatientsChanged);
-    _loadPatientsFromServer();
-    _loadNotesFromServer();
-  }
-
-  Future<void> _loadNotesFromServer() async {
-    try {
-      final notes = await _apiService.getPatientNotes();
-      if (!mounted) {
-        return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      final PatientProvider provider = context.read<PatientProvider>();
+      provider.addListener(_handlePatientsChanged);
+      if (!mounted) return;
+      setState(() {
+        _allPatients = provider.patients;
+        _filteredPatients = provider.patients;
+      });
+      if (_allPatients.isEmpty) {
+        provider.syncFromBackend();
       }
-      _patientNotesStore.setNotes(notes);
-    } catch (_) {
-      // Keep silent here: notes are secondary content for this page.
-    }
-  }
-
-  Future<void> _loadPatientsFromServer() async {
-    try {
-      final List<PatientModel> patients = await _apiService.getPatients();
-      if (!mounted) {
-        return;
-      }
-      _patientStore.setPatients(patients);
-    } catch (_) {
-      if (!mounted) {
-        return;
-      }
-
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Unable to load patients from the database.'),
-          behavior: SnackBarBehavior.floating,
-          duration: Duration(seconds: 2),
-        ),
-      );
-    }
+    });
   }
 
   void _handlePatientsChanged() {
-    _allPatients = _patientStore.currentPatients;
-    _filterPatients();
+    if (!mounted) {
+      return;
+    }
+
+    final PatientProvider provider = context.read<PatientProvider>();
+    setState(() {
+      _allPatients = provider.patients;
+      _filterPatients();
+    });
   }
 
   void _filterPatients() {
@@ -89,7 +69,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     });
   }
 
-  Future<void> _confirmAndDeletePatient(PatientModel patient) async {
+  Future<void> _confirmAndDeletePatient(Patient patient) async {
     final bool? shouldDelete = await showDialog<bool>(
       context: context,
       builder: (BuildContext context) {
@@ -119,8 +99,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     }
 
     try {
-      await _apiService.deletePatient(patientId: patient.id);
-      _patientStore.removePatientById(patient.id);
+      await context.read<PatientProvider>().deletePatient(patient.id);
     } catch (_) {
       if (!mounted) {
         return;
@@ -128,7 +107,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to delete ${patient.name} on the server.'),
+          content: Text('Failed to delete ${patient.name}.'),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
@@ -151,8 +130,8 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     );
   }
 
-  Future<void> _confirmAndUpdatePatient(PatientModel patient) async {
-    final PatientModel? updatedPatient = await showDialog<PatientModel>(
+  Future<void> _confirmAndUpdatePatient(Patient patient) async {
+    final Patient? updatedPatient = await showDialog<Patient>(
       context: context,
       barrierDismissible: true,
       builder: (_) => AddPatientDialog(initialPatient: patient),
@@ -163,15 +142,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     }
 
     try {
-      await _apiService.updatePatient(
-        patientId: patient.id,
-        name: updatedPatient.name,
-        age: updatedPatient.age,
-        condition: updatedPatient.condition,
-        lastSeen: updatedPatient.lastSeen,
-        sessionsCount: updatedPatient.sessionsCount,
-      );
-      _patientStore.updatePatient(updatedPatient.copyWith(id: patient.id));
+      await context.read<PatientProvider>().updatePatient(updatedPatient.copyWith(id: patient.id));
     } catch (_) {
       if (!mounted) {
         return;
@@ -179,7 +150,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
 
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('Failed to update ${patient.name} on the server.'),
+          content: Text('Failed to update ${patient.name}.'),
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.all(16),
           duration: const Duration(seconds: 2),
@@ -202,7 +173,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
     );
   }
 
-  Future<void> _openPatientNotesEditor(PatientModel patient) async {
+  Future<void> _openPatientNotesEditor(Patient patient) async {
     final String patientId = patient.id.trim();
     final String patientName = patient.name.trim();
 
@@ -331,25 +302,6 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
         return;
       }
 
-      try {
-        await _apiService.savePatientNote(
-          patientId: patientId,
-          note: normalized,
-        );
-      } catch (_) {
-        if (!mounted) {
-          return;
-        }
-
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(
-            content: Text('Failed to save patient notes.'),
-            behavior: SnackBarBehavior.floating,
-          ),
-        );
-        return;
-      }
-
       _patientNotesStore.saveNote(
         patientId: patientId,
         patientName: patientName,
@@ -368,7 +320,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
   @override
   void dispose() {
     _searchController.dispose();
-    _patientStore.patientsNotifier.removeListener(_handlePatientsChanged);
+    context.read<PatientProvider>().removeListener(_handlePatientsChanged);
     super.dispose();
   }
 
@@ -442,7 +394,7 @@ class _PatientdashboardformState extends State<Patientdashboardform> {
                         patientId: patient.id,
                         age: patient.age,
                         condition: patient.condition,
-                        lastSeen: patient.lastSeen,
+                        nextVisit: patient.nextVisit,
                         sessionsCount: patient.sessionsCount,
                         onContinueChat: () {
                           context.pushNamed(
