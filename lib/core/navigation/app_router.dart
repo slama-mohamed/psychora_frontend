@@ -135,7 +135,19 @@ class AppRouter {
       GoRoute(
         path: resourcesPage,
         name: RouteName.resourcesPage,
-        builder: (context, state) => const ResourcesPage(),
+        builder: (context, state) {
+          bool showBottomNavigationBar = true;
+          bool showAppBar = true;
+          if (state.extra is Map<String, dynamic>) {
+            final extra = state.extra as Map<String, dynamic>;
+            showBottomNavigationBar = extra['showBottomNavigationBar'] as bool? ?? true;
+            showAppBar = extra['showAppBar'] as bool? ?? true;
+          }
+          return ResourcesPage(
+            showBottomNavigationBar: showBottomNavigationBar,
+            showAppBar: showAppBar,
+          );
+        },
       ),
       GoRoute(
         path: editProfilePage,

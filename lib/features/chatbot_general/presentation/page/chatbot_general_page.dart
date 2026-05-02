@@ -110,19 +110,31 @@ class _ChatbotGeneralPageState extends State<ChatbotGeneralPage> {
                       children: <Widget>[
                         _resourceCard(Icons.article_outlined, 'Articles', () {
                           Navigator.of(ctx).pop();
-                          context.goNamed(RouteName.resourcesPage);
+                          context.goNamed(
+                            RouteName.resourcesPage,
+                            extra: {'showBottomNavigationBar': false},
+                          );
                         }),
                         _resourceCard(Icons.play_circle_outline, 'Vidéos', () {
                           Navigator.of(ctx).pop();
-                          context.goNamed(RouteName.resourcesPage);
+                          context.goNamed(
+                            RouteName.resourcesPage,
+                            extra: {'showBottomNavigationBar': false},
+                          );
                         }),
                         _resourceCard(Icons.picture_as_pdf_outlined, 'PDFs', () {
                           Navigator.of(ctx).pop();
-                          context.goNamed(RouteName.resourcesPage);
+                          context.goNamed(
+                            RouteName.resourcesPage,
+                            extra: {'showBottomNavigationBar': false},
+                          );
                         }),
                         _resourceCard(Icons.school_outlined, 'Cours', () {
                           Navigator.of(ctx).pop();
-                          context.goNamed(RouteName.resourcesPage);
+                          context.goNamed(
+                            RouteName.resourcesPage,
+                            extra: {'showBottomNavigationBar': false},
+                          );
                         }),
                       ],
                     ),
@@ -137,7 +149,10 @@ class _ChatbotGeneralPageState extends State<ChatbotGeneralPage> {
                         ),
                         onPressed: () {
                           Navigator.of(ctx).pop();
-                          context.goNamed(RouteName.resourcesPage);
+                          context.goNamed(
+                            RouteName.resourcesPage,
+                            extra: {'showBottomNavigationBar': false},
+                          );
                         },
                         child: const Text('Voir toutes les ressources', style: TextStyle(fontSize: 15)),
                       ),
@@ -207,7 +222,10 @@ class _ChatbotGeneralPageState extends State<ChatbotGeneralPage> {
         ),
         actions: [
           IconButton(
-            onPressed: () => context.goNamed(RouteName.resourcesPage),
+            onPressed: () => context.goNamed(
+              RouteName.resourcesPage,
+              extra: {'showBottomNavigationBar': false},
+            ),
             tooltip: 'Ressources',
             icon: const Icon(
               Icons.menu_book_outlined,

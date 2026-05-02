@@ -14,7 +14,7 @@ class PatientDashboardPage extends StatelessWidget {
       body: SafeArea(
         child: Patientdashboardform(),
       ),
-      bottomNavigationBar: const HomeBottomNavigationBar(),
+      bottomNavigationBar: const HomeBottomNavigationBar(isDoctor: false),
     );
   }
 }

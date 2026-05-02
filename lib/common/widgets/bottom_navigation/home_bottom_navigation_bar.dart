@@ -6,7 +6,9 @@ import 'package:psychora/core/navigation/app_router.dart';
 
 
 class HomeBottomNavigationBar extends StatefulWidget {
-  const HomeBottomNavigationBar({super.key});
+  final bool isDoctor;
+
+  const HomeBottomNavigationBar({super.key, this.isDoctor = false});
 
   @override
   State<HomeBottomNavigationBar> createState() =>
@@ -37,7 +39,7 @@ class _HomeBottomNavigationBarState extends State<HomeBottomNavigationBar> {
         context.goNamed(RouteName.patientdashboardpage);
         break;
       case 2:
-        context.goNamed(RouteName.resourcesPage);
+        context.goNamed(RouteName.resourcesPage, extra: {'showBottomNavigationBar': true, 'showAppBar': !widget.isDoctor});
         break;
       case 3:
         context.goNamed(RouteName.profilepage);

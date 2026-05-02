@@ -15,7 +15,7 @@ class HomePage extends StatelessWidget {
           child: const HomeForm(),
         ),
       ),
-      bottomNavigationBar: const HomeBottomNavigationBar(),
+      bottomNavigationBar: const HomeBottomNavigationBar(isDoctor: true),
     );
   }
 }
