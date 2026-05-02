@@ -1,6 +1,7 @@
 import 'dart:developer' as developer;
 
 import 'package:dio/dio.dart';
+import 'package:flutter/widgets.dart';
 import 'package:psychora/core/constants/end_point_url.dart';
 import 'package:psychora/features/patient_dashboard/data/patient_note_model.dart';
 import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
@@ -38,15 +39,20 @@ class ApiService {
 
   Dio get dio => _dio;
 
-  void setAuthToken(String token) {
-    _tokenStore.saveToken(token);
+  Future<void> setAuthToken(String token) async {
+    await _tokenStore.saveToken(token);
   }
 
-  void clearAuthToken() {
-    _tokenStore.clearToken();
+  Future<void> clearAuthToken() async {
+    await _tokenStore.clearToken();
   }
 
   String? get currentToken => _tokenStore.accessToken;
+
+  Future<void> readTokenFromStorage() async {
+    final token = await _tokenStore.readToken();
+    debugPrint('DEBUG: Token loaded from storage = $token');
+  }
 
   void setUnauthorizedHandler(UnauthorizedCallback callback) {
     _onUnauthorized = callback;
@@ -58,7 +64,7 @@ class ApiService {
     try {
       await _dio.post<dynamic>(path);
     } finally {
-      clearAuthToken();
+      await clearAuthToken();
     }
   }
 
@@ -75,9 +81,14 @@ class ApiService {
       },
     );
 
+    debugPrint('DEBUG: Login response = ${response.data}');
     final String? token = _extractAuthToken(response.data);
+    debugPrint('DEBUG: Extracted token = $token');
     if (token != null && token.isNotEmpty) {
-      setAuthToken(token);
+      await setAuthToken(token);
+      debugPrint('DEBUG: Token saved successfully');
+    } else {
+      debugPrint('DEBUG: No token found in response');
     }
 
     return response;
@@ -133,7 +144,7 @@ class ApiService {
 
     final String? token = _extractAuthToken(response.data);
     if (token != null && token.isNotEmpty) {
-      setAuthToken(token);
+      await setAuthToken(token);
     }
 
     return response;
@@ -167,7 +178,7 @@ class ApiService {
 
     final String? token = _extractAuthToken(response.data);
     if (token != null && token.isNotEmpty) {
-      setAuthToken(token);
+      await setAuthToken(token);
     }
 
     return response;

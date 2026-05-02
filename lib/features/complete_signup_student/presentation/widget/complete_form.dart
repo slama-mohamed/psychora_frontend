@@ -7,6 +7,9 @@ import 'package:psychora/features/signup_page/presentation/page/signup_page.dart
 import 'package:psychora/core/network/api_service.dart';
 import 'package:dio/dio.dart';
 import 'package:psychora/features/signup_page/presentation/function/navigation_functions.dart';
+import 'package:psychora/features/chatbot_interface/data/chat_conversation_store.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_notes_store.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
 import 'package:psychora/core/validators/eight_digit_validator.dart';
 
 class CompleteProfileStudent extends StatefulWidget {
@@ -87,6 +90,12 @@ class _CompleteProfileStudentState
     );
 
     try {
+      // Vider toutes les données de l'ancien compte avant de créer le nouveau
+      PatientStore().clearAll();
+      PatientNotesStore().clearAll();
+      ChatConversationStore().clearAll();
+      await api.clearAuthToken();
+
       final Response<dynamic> response = await api.signupStudent(
         fullName: fullName,
         email: email,

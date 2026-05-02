@@ -10,6 +10,9 @@ import 'package:psychora/features/complete_signup_doctor/presentation/widget/pro
 import 'package:psychora/features/complete_signup_doctor/presentation/widget/progress_bar.dart';
 import 'package:psychora/core/validators/eight_digit_validator.dart';
 import 'package:psychora/core/validators/validation_patterns.dart';
+import 'package:psychora/features/chatbot_interface/data/chat_conversation_store.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_notes_store.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
 
 class CompleteProfiledoctor extends StatefulWidget {
   const CompleteProfiledoctor({super.key, this.signupData});
@@ -98,6 +101,12 @@ class _CompleteProfiledoctorState extends State<CompleteProfiledoctor> {
 
     try {
       final yearsOfExperience = int.tryParse(_experienceController.text) ?? 0;
+
+      // Vider toutes les données de l'ancien compte avant de créer le nouveau
+      PatientStore().clearAll();
+      PatientNotesStore().clearAll();
+      ChatConversationStore().clearAll();
+      await ApiService().clearAuthToken();
 
       await ApiService().signupPsychologist(
         fullName: fullName,

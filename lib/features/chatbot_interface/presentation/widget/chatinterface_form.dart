@@ -23,6 +23,7 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
   late final ChatServices _chatServices;
   final List<ChatMessage> messages = [];
   bool _isSending = false;
+  bool _isLoadingHistory = false;
 
   String get _welcomeText {
     if (widget.patientName != null && widget.patientName!.trim().isNotEmpty) {
@@ -36,13 +37,61 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
     super.initState();
     _messageController = TextEditingController();
     _chatServices = ChatServices();
-    messages.add(
-      ChatMessage(
-        text: _welcomeText,
-        isUser: false,
-        timestamp: 'Just now',
-      ),
-    );
+    _loadHistory();
+  }
+
+  /// Charge l'historique depuis le backend au démarrage
+  Future<void> _loadHistory() async {
+    final String patientId = (widget.patientId ?? '').trim();
+    if (patientId.isEmpty) {
+      _addWelcomeMessage();
+      return;
+    }
+
+    setState(() => _isLoadingHistory = true);
+
+    try {
+      final List<Map<String, dynamic>> history =
+          await _chatServices.loadConversation(patientId: patientId);
+
+      if (!mounted) return;
+
+      if (history.isEmpty) {
+        _addWelcomeMessage();
+      } else {
+        setState(() {
+          messages.clear();
+          for (final Map<String, dynamic> msg in history) {
+            final String role = (msg['role'] ?? '').toString();
+            final String content =
+                (msg['content'] ?? msg['message'] ?? '').toString();
+            if (content.isNotEmpty) {
+              messages.add(ChatMessage(
+                text: content,
+                isUser: role == 'user',
+                timestamp: (msg['timestamp'] ?? '').toString(),
+              ));
+            }
+          }
+        });
+      }
+    } catch (_) {
+      if (mounted) _addWelcomeMessage();
+    } finally {
+      if (mounted) setState(() => _isLoadingHistory = false);
+    }
+  }
+
+  void _addWelcomeMessage() {
+    setState(() {
+      if (messages.isEmpty) {
+        messages.add(ChatMessage(
+          text: _welcomeText,
+          isUser: false,
+          timestamp: 'Just now',
+        ));
+      }
+    });
   }
 
   @override
@@ -104,6 +153,12 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
           ),
         );
       });
+
+      // Sauvegarder la conversation sur le backend après chaque réponse
+      _chatServices.saveConversation(
+        patientId: activePatientId,
+        history: _buildHistory(),
+      ).catchError((_) {});
     } catch (error) {
       if (!mounted) {
         return;
@@ -146,37 +201,38 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
       children: [
         // Messages area
         Expanded(
-          child: messages.isEmpty
-              ? Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(
-                        Icons.chat_bubble_outline,
-                        size: 64,
-                        color: Colors.grey.shade300,
+          child: _isLoadingHistory
+              ? const Center(child: CircularProgressIndicator())
+              : messages.isEmpty
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 64,
+                            color: Colors.grey.shade300,
+                          ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No messages yet',
+                            style: TextStyle(
+                              color: Colors.grey.shade500,
+                              fontSize: 16,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
                       ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'No messages yet',
-                        style: TextStyle(
-                          color: Colors.grey.shade500,
-                          fontSize: 16,
-                          fontWeight: FontWeight.w500,
-                        ),
-                      ),
-                    ],
-                  ),
-                )
-              
-              : ListView.builder(
-                  reverse: true,
-                  itemCount: messages.length,
-                  itemBuilder: (context, index) {
-                    final message = messages[messages.length - 1 - index];
-                    return MessageBubble(message: message);
-                  },
-                ),
+                    )
+                  : ListView.builder(
+                      reverse: true,
+                      itemCount: messages.length,
+                      itemBuilder: (context, index) {
+                        final message = messages[messages.length - 1 - index];
+                        return MessageBubble(message: message);
+                      },
+                    ),
         ),
         const SizedBox(height: 16),
         // Input area
@@ -185,7 +241,7 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
           onSend: () {
             _sendMessage();
           },
-          enabled: !_isSending,
+          enabled: !_isSending && !_isLoadingHistory,
           isLoading: _isSending,
         ),
         const SizedBox(height: 8),
@@ -193,4 +249,3 @@ class _ChatinterfaceFormState extends State<ChatinterfaceForm> {
     );
   }
 }
-

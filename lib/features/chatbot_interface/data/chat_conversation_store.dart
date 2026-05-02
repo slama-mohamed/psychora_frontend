@@ -173,4 +173,9 @@ class ChatConversationStore {
 
     return true;
   }
+
+  void clearAll() {
+    _conversationsByPatient.clear();
+    _savedConversationsByPatient.clear();
+  }
 }

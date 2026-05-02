@@ -6,6 +6,9 @@ import 'package:psychora/features/profile_page/data/user_profile_model.dart';
 import 'package:psychora/features/profile_page/presentation/widget/action_buttons.dart';
 import 'package:psychora/features/profile_page/presentation/widget/information_section.dart';
 import 'package:psychora/features/profile_page/presentation/widget/profile_header.dart';
+import 'package:psychora/features/chatbot_interface/data/chat_conversation_store.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_notes_store.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
 
 class ProfilepageForm extends StatefulWidget {
   const ProfilepageForm({super.key});
@@ -63,8 +66,13 @@ class _ProfilepageFormState extends State<ProfilepageForm> {
       await _apiService.logout();
     } catch (_) {
       // Continue local logout flow even if backend endpoint fails.
-      _apiService.clearAuthToken();
+      await _apiService.clearAuthToken();
     }
+
+    // Vider toutes les données en mémoire pour éviter les fuites entre comptes
+    PatientStore().clearAll();
+    PatientNotesStore().clearAll();
+    ChatConversationStore().clearAll();
 
     if (!mounted) {
       return;

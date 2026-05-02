@@ -16,19 +16,63 @@ class _ChatGeneralFormState extends State<ChatGeneralForm> {
   late final ChatGeneralServices _chatServices;
   final List<ChatGeneralMessage> messages = [];
   bool _isSending = false;
+  bool _isLoadingHistory = false;
 
   @override
   void initState() {
     super.initState();
     _messageController = TextEditingController();
     _chatServices = ChatGeneralServices();
-    messages.add(
-      const ChatGeneralMessage(
-        text: 'Hello! I am Psychora, your mental health assistant. How can I help you today?',
-        isUser: false,
-        timestamp: 'Just now',
-      ),
-    );
+    _loadHistory();
+  }
+
+  /// Charge l'historique de la conversation depuis le backend
+  Future<void> _loadHistory() async {
+    setState(() => _isLoadingHistory = true);
+
+    try {
+      final List<Map<String, dynamic>> history =
+          await _chatServices.getStudentMessages();
+
+      if (!mounted) return;
+
+      if (history.isEmpty) {
+        _addWelcomeMessage();
+      } else {
+        setState(() {
+          messages.clear();
+          for (final Map<String, dynamic> msg in history) {
+            final String role = (msg['role'] ?? '').toString();
+            final String content =
+                (msg['content'] ?? msg['message'] ?? '').toString();
+            if (content.isNotEmpty) {
+              messages.add(ChatGeneralMessage(
+                text: content,
+                isUser: role == 'user',
+                timestamp: (msg['timestamp'] ?? '').toString(),
+              ));
+            }
+          }
+        });
+      }
+    } catch (_) {
+      if (mounted) _addWelcomeMessage();
+    } finally {
+      if (mounted) setState(() => _isLoadingHistory = false);
+    }
+  }
+
+  void _addWelcomeMessage() {
+    setState(() {
+      if (messages.isEmpty) {
+        messages.add(const ChatGeneralMessage(
+          text:
+              'Hello! I am Psychora, your mental health assistant. How can I help you today?',
+          isUser: false,
+          timestamp: 'Just now',
+        ));
+      }
+    });
   }
 
   @override
@@ -115,20 +159,22 @@ class _ChatGeneralFormState extends State<ChatGeneralForm> {
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Expanded(
-          child: ListView.builder(
-            reverse: true,
-            itemCount: messages.length,
-            itemBuilder: (context, index) {
-              final message = messages[messages.length - 1 - index];
-              return ChatGeneralMessageBubble(message: message);
-            },
-          ),
+          child: _isLoadingHistory
+              ? const Center(child: CircularProgressIndicator())
+              : ListView.builder(
+                  reverse: true,
+                  itemCount: messages.length,
+                  itemBuilder: (context, index) {
+                    final message = messages[messages.length - 1 - index];
+                    return ChatGeneralMessageBubble(message: message);
+                  },
+                ),
         ),
         const SizedBox(height: 16),
         ChatGeneralInputArea(
           controller: _messageController,
           onSend: _sendMessage,
-          enabled: !_isSending,
+          enabled: !_isSending && !_isLoadingHistory,
           isLoading: _isSending,
         ),
         const SizedBox(height: 8),
