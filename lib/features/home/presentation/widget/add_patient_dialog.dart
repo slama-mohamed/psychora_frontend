@@ -181,7 +181,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: _fieldDecoration('Full name', 'Ex: Sara El Moussa'),
+                decoration: _fieldDecoration('Full name', ''),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Name is required';
@@ -192,7 +192,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _ageController,
-                decoration: _fieldDecoration('Age', 'Ex: 29'),
+                decoration: _fieldDecoration('Age', ''),
                 keyboardType: TextInputType.number,
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
