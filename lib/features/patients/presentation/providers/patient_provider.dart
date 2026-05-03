@@ -204,7 +204,11 @@ class PatientProvider extends ChangeNotifier {
   Future<void> syncFromBackend() async {
     await loadFromBackend();
   }
-
+  Future<void> clearAll() async {
+  _patients = [];
+  await _preferences.remove(_storageKey);
+  notifyListeners();
+}
   Future<void> _save() async {
     final String encoded = jsonEncode(_patients.map((Patient patient) => patient.toJson()).toList());
     await _preferences.setString(_storageKey, encoded);

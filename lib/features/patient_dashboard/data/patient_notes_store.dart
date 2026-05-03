@@ -61,4 +61,8 @@ class PatientNotesStore {
 
     notesNotifier.value = updated;
   }
+
+  void clearAll() {
+    notesNotifier.value = <PatientNoteModel>[];
+  }
 }

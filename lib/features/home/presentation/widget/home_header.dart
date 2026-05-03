@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:psychora/features/home/presentation/widget/form_date.dart';
+import 'package:psychora/features/patients/presentation/providers/patient_provider.dart';
 
 class HomeHeader extends StatelessWidget {
   const HomeHeader({super.key});
@@ -8,7 +10,16 @@ class HomeHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final now = DateTime.now();
     final dateLabel = formatDate(now);
+  
+  
 
+    // ← Lit le nombre de sessions d'aujourd'hui depuis PatientProvider
+    final int todayCount = context.watch<PatientProvider>().todayPatients.length;
+    final String sessionLabel = todayCount == 0
+        ? 'No sessions today'
+        : todayCount == 1
+            ? '1 session today'
+            : '$todayCount sessions today';
     return Container(
       decoration: BoxDecoration(
         color: Colors.white,
@@ -48,7 +59,7 @@ class HomeHeader extends StatelessWidget {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text(
-                      'Welcome back , Dr.Mohamed !',
+                      'Welcomer Dr.Mohamed !',
                       style: TextStyle(
                         fontSize: 22,
                         height: 1.1,
@@ -105,18 +116,18 @@ class HomeHeader extends StatelessWidget {
               color: const Color(0xFF3D9970),
               borderRadius: BorderRadius.circular(999),
             ),
-            child: const Row(
+            child: Row(
               mainAxisSize: MainAxisSize.min,
               children: [
-                Icon(
+                const Icon(
                   Icons.calendar_month_outlined,
                   size: 14,
                   color: Colors.white,
                 ),
-                SizedBox(width: 6),
+                const SizedBox(width: 6),
                 Text(
-                  '3 sessions today',
-                  style: TextStyle(
+                  sessionLabel,
+                  style: const TextStyle(
                     fontSize: 12.5,
                     fontWeight: FontWeight.w700,
                     color: Colors.white,

@@ -42,4 +42,8 @@ class PatientStore {
         .toList();
     patientsNotifier.value = updatedPatients;
   }
+
+  void clearAll() {
+    patientsNotifier.value = <PatientModel>[];
+  }
 }

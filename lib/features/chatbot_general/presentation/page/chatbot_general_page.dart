@@ -2,6 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 import 'package:psychora/core/constants/route_name.dart';
 import 'package:psychora/core/network/api_service.dart';
+import 'package:psychora/features/chatbot_interface/data/chat_conversation_store.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_notes_store.dart';
+import 'package:psychora/features/patient_dashboard/data/patient_store.dart';
 import 'package:psychora/features/chatbot_general/presentation/widget/chat_general_form.dart';
 
 class ChatbotGeneralPage extends StatefulWidget {
@@ -48,6 +51,11 @@ class _ChatbotGeneralPageState extends State<ChatbotGeneralPage> {
     } catch (_) {
       await _apiService.clearAuthToken();
     }
+
+    // Vider toutes les données en mémoire
+    PatientStore().clearAll();
+    PatientNotesStore().clearAll();
+    ChatConversationStore().clearAll();
 
     if (!mounted) {
       return;
