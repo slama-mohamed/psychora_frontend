@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:psychora/features/patient_dashboard/data/patientmodel.dart';
+import 'package:psychora/features/patients/domain/models/patient.dart';
 
 class AddPatientDialog extends StatefulWidget {
-  final PatientModel? initialPatient;
+  final Patient? initialPatient;
 
   const AddPatientDialog({super.key, this.initialPatient});
 
@@ -17,28 +17,26 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
   late final TextEditingController _nameController;
   late final TextEditingController _ageController;
   late final TextEditingController _conditionController;
-  late final TextEditingController _lastSeenController;
+  late final TextEditingController _nextVisitController;
   late final TextEditingController _sessionsController;
+  DateTime? _selectedNextVisit;
 
   bool _isSubmitting = false;
 
   @override
   void initState() {
     super.initState();
-    final PatientModel? patient = widget.initialPatient;
+    final Patient? patient = widget.initialPatient;
+    _selectedNextVisit = patient?.nextVisit != null && patient!.nextVisit!.trim().isNotEmpty
+        ? DateTime.tryParse(patient.nextVisit!)
+        : null;
     _nameController = TextEditingController(text: patient?.name ?? '');
-    _ageController = TextEditingController(
-      text: patient?.age.toString() ?? '',
-    );
+    _ageController = TextEditingController(text: patient?.age.toString() ?? '');
     _conditionController = TextEditingController(
       text: patient?.condition ?? 'Diagnosis not yet established',
     );
-    _lastSeenController = TextEditingController(
-      text: patient?.lastSeen ?? 'Today',
-    );
-    _sessionsController = TextEditingController(
-      text: patient?.sessionsCount.toString() ?? '0',
-    );
+    _nextVisitController = TextEditingController(text: _formatNextVisitDisplay(_selectedNextVisit));
+    _sessionsController = TextEditingController(text: patient?.sessionsCount.toString() ?? '0');
   }
 
   @override
@@ -46,9 +44,60 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
     _nameController.dispose();
     _ageController.dispose();
     _conditionController.dispose();
-    _lastSeenController.dispose();
+    _nextVisitController.dispose();
     _sessionsController.dispose();
     super.dispose();
+  }
+
+  String _formatNextVisitDisplay(DateTime? dateTime) {
+    if (dateTime == null) {
+      return '';
+    }
+    final String day = dateTime.day.toString().padLeft(2, '0');
+    final String month = dateTime.month.toString().padLeft(2, '0');
+    final String year = dateTime.year.toString().substring(2);
+    final String hour = dateTime.hour.toString().padLeft(2, '0');
+    final String minute = dateTime.minute.toString().padLeft(2, '0');
+    return '$day/$month/$year à ${hour}h$minute';
+  }
+
+  Future<void> _selectNextVisit() async {
+    final DateTime now = DateTime.now();
+    final DateTime initialDate = _selectedNextVisit ?? now;
+    final DateTime? selectedDate = await showDatePicker(
+      context: context,
+      initialDate: initialDate,
+      firstDate: now.subtract(const Duration(days: 365)),
+      lastDate: now.add(const Duration(days: 365 * 2)),
+    );
+
+    if (selectedDate == null) {
+      return;
+    }
+
+    final TimeOfDay initialTime = _selectedNextVisit != null
+        ? TimeOfDay(hour: _selectedNextVisit!.hour, minute: _selectedNextVisit!.minute)
+        : const TimeOfDay(hour: 9, minute: 0);
+
+    final TimeOfDay? selectedTime = await showTimePicker(
+      context: context,
+      initialTime: initialTime,
+    );
+
+    if (selectedTime == null) {
+      return;
+    }
+
+    setState(() {
+      _selectedNextVisit = DateTime(
+        selectedDate.year,
+        selectedDate.month,
+        selectedDate.day,
+        selectedTime.hour,
+        selectedTime.minute,
+      );
+      _nextVisitController.text = _formatNextVisitDisplay(_selectedNextVisit);
+    });
   }
 
   void _submit() {
@@ -67,12 +116,12 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
         ? 'Diagnosis not yet established'
         : _conditionController.text.trim();
 
-    final newPatient = PatientModel(
+    final Patient patient = Patient(
       id: widget.initialPatient?.id ?? '',
       name: _nameController.text.trim(),
       age: parsedAge,
       condition: conditionValue,
-      lastSeen: _lastSeenController.text.trim(),
+      nextVisit: _selectedNextVisit?.toIso8601String(),
       sessionsCount: int.tryParse(_sessionsController.text.trim()) ?? 0,
     );
 
@@ -81,9 +130,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
     messenger?.showSnackBar(
       SnackBar(
         content: Text(
-          widget.isEditing
-              ? 'Patient mis à jour : ${newPatient.name}'
-              : 'Patient ajouté : ${newPatient.name}',
+          widget.isEditing ? 'Patient mis à jour : ${patient.name}' : 'Patient ajouté : ${patient.name}',
         ),
         behavior: SnackBarBehavior.floating,
         duration: const Duration(seconds: 2),
@@ -91,7 +138,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
       ),
     );
 
-    Navigator.of(context).pop(newPatient);
+    Navigator.of(context).pop(patient);
   }
 
   InputDecoration _fieldDecoration(String label, String hint) {
@@ -114,9 +161,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
       title: Row(
         children: [
           Icon(
-            widget.isEditing
-                ? Icons.edit_note_rounded
-                : Icons.person_add_alt_1_rounded,
+            widget.isEditing ? Icons.edit_note_rounded : Icons.person_add_alt_1_rounded,
             color: const Color(0xFF1F2937),
           ),
           const SizedBox(width: 10),
@@ -136,10 +181,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
             children: [
               TextFormField(
                 controller: _nameController,
-                decoration: _fieldDecoration(
-                  'Full name',
-                  'Ex: Sara El Moussa',
-                ),
+                decoration: _fieldDecoration('Full name', 'Ex: Sara El Moussa'),
                 validator: (value) {
                   if (value == null || value.trim().isEmpty) {
                     return 'Name is required';
@@ -165,27 +207,17 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
               const SizedBox(height: 12),
               TextFormField(
                 controller: _conditionController,
-                decoration: _fieldDecoration(
-                  'Diagnosis / condition',
-                  'Diagnosis not yet established',
-                ),
+                decoration: _fieldDecoration('Diagnosis / condition', 'Diagnosis not yet established'),
                 validator: (value) {
                   return null;
                 },
               ),
               const SizedBox(height: 12),
               TextFormField(
-                controller: _lastSeenController,
-                decoration: _fieldDecoration(
-                  'Last visit',
-                  'Ex: 2 days ago',
-                ),
-                validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Last visit date is required';
-                  }
-                  return null;
-                },
+                controller: _nextVisitController,
+                readOnly: true,
+                onTap: _selectNextVisit,
+                decoration: _fieldDecoration('Next visit', 'Select a date and time'),
               ),
               const SizedBox(height: 12),
               TextFormField(
@@ -210,7 +242,7 @@ class _AddPatientDialogState extends State<AddPatientDialog> {
       actions: [
         TextButton(
           onPressed: _isSubmitting ? null : () => Navigator.of(context).pop(),
-          child: const Text('Exit' , style: TextStyle(color: Colors.black),),
+          child: const Text('Exit', style: TextStyle(color: Colors.black)),
         ),
         ElevatedButton(
           style: ElevatedButton.styleFrom(

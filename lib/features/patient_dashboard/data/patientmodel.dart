@@ -39,7 +39,7 @@ class PatientModel {
       name: _readString(map, <String>['name', 'fullName', 'patientName']),
       age: _readInt(map, <String>['age']),
       condition: _normalizeCondition(_readString(map, <String>['condition', 'diagnosis', 'state'])),
-      lastSeen: _readString(map, <String>['lastSeen', 'lastVisit']),
+      lastSeen: _readString(map, <String>['lastSeen', 'lastVisit', 'lastseen', 'nextVisit', 'next_visit', 'visitDate', 'visit_date']),
       sessionsCount: _readInt(map, <String>['sessionsCount', 'sessions']),
     );
   }

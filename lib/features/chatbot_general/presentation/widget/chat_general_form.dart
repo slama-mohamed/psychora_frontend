@@ -56,7 +56,7 @@ class _ChatGeneralFormState extends State<ChatGeneralForm> {
     });
 
     try {
-      final String botReply = await _chatServices.sendMessage(
+      final String botReply = await _chatServices.sendStudentMessage(
         userMessage: userText,
         history: _buildHistory(),
       );

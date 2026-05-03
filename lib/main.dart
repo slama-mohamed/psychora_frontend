@@ -1,8 +1,23 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:psychora/core/navigation/app_router.dart';
+import 'package:psychora/features/patients/presentation/providers/patient_provider.dart';
 
-void main() {
-  runApp(const Myapp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  final SharedPreferences prefs = await SharedPreferences.getInstance();
+  final PatientProvider patientProvider = PatientProvider(prefs);
+  await patientProvider.load();
+
+  runApp(
+    MultiProvider(
+      providers: [
+        ChangeNotifierProvider<PatientProvider>.value(value: patientProvider),
+      ],
+      child: const Myapp(),
+    ),
+  );
 }
 
 class Myapp extends StatelessWidget {
