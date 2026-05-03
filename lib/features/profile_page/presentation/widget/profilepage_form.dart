@@ -63,7 +63,7 @@ class _ProfilepageFormState extends State<ProfilepageForm> {
       await _apiService.logout();
     } catch (_) {
       // Continue local logout flow even if backend endpoint fails.
-      _apiService.clearAuthToken();
+      await _apiService.clearAuthToken();
     }
 
     if (!mounted) {

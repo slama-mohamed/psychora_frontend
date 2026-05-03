@@ -46,7 +46,7 @@ class _ChatbotGeneralPageState extends State<ChatbotGeneralPage> {
     try {
       await _apiService.logout();
     } catch (_) {
-      _apiService.clearAuthToken();
+      await _apiService.clearAuthToken();
     }
 
     if (!mounted) {
